@@ -19,6 +19,27 @@
 
 ---
 
+## 计划修订日志（Plan Revision Log）
+
+> 计划执行期间发现的规格瑕疵/安全补强，按发现顺序追加。每个修订都对应一个独立 commit。
+
+| Rev | SHA | 任务 | 类别 | 摘要 |
+|-----|-----|------|------|------|
+| A   | 199a556 | T1 后 | 安全 | `git rm --cached .env` + .gitignore 增 `.env` / `__pycache__/` / `.pytest_cache/` |
+| B   | f54d2b5 | T1 后 | 配置 | `CORS_ORIGINS` 由硬编码改为 `${CORS_ORIGINS:-default}` |
+| C   | 27e732f | T1 后 | 配置 | compose 补 7 个 backend env (JWT_ALG/JWT_TTL_MIN/BOOTSTRAP_*) + 3 个 frontend env (VITE_*) |
+| D   | 42c0510 | T1 后 | 容器 | `backend/Dockerfile` 加 system user `app` (uid 1001) + USER 指令 + chown |
+| E   | e4ee02a | T1 后 | 镜像 | 新建 `backend/.dockerignore` (排除 .venv/ __pycache__/ tests/ .env) |
+| F   | 66955e2 | T1 后 | 文档 | `.env.example` JWT_SECRET 改用 `openssl rand -hex 32` 显式生成说明 |
+
+**对后续任务的影响：**
+- T2 (Backend skeleton) 引用 `JWT_ALG` / `JWT_TTL_MIN` / `BOOTSTRAP_*` / `CORS_ORIGINS` 4 个 env, 现已就绪
+- T2 Dockerfile 不再需要改 USER (D 已做)
+- T2 起 backend 镜像大小受 .dockerignore 控制
+- T36 (切流) `VITE_FRONTEND_ENABLED` env 已在 C 中透传到 frontend 容器
+
+---
+
 ## 文件结构（计划产出物）
 
 ### 新增目录
