@@ -25,6 +25,10 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@postgres:5432/${POSTGRES_DB:-dsep_test}
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      JWT_ALG: ${JWT_ALG:-HS256}
+      JWT_TTL_MIN: ${JWT_TTL_MIN:-480}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@local}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-admin123}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     ports:
       - "8000:8000"
@@ -37,6 +41,10 @@ services:
     image: node:20-alpine
     container_name: dsep-frontend
     working_dir: /app
+    environment:
+      VITE_FRONTEND_ENABLED: ${VITE_FRONTEND_ENABLED:-true}
+      VITE_API_BASE: ${VITE_API_BASE:-http://localhost:8000}
+      VITE_WS_BASE: ${VITE_WS_BASE:-ws://localhost:8000}
     volumes:
       - ./frontend:/app
     ports:
