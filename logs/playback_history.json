@@ -1,0 +1,224 @@
+{
+  "records": [
+    {
+      "tc_id": "test_tc",
+      "ts": "2026-06-02T19:17:49",
+      "status": "passed",
+      "duration_ms": 1234,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": null,
+      "error": null
+    },
+    {
+      "tc_id": "tc_pass_e2e",
+      "ts": "2026-06-02T19:24:34",
+      "status": "passed",
+      "duration_ms": 9495,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "tc_fail_e2e",
+      "ts": "2026-06-02T19:24:39",
+      "status": "failed",
+      "duration_ms": 4688,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "tc_pass_e2e",
+      "ts": "2026-06-02T19:26:10",
+      "status": "passed",
+      "duration_ms": 3687,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "tc_fail_e2e",
+      "ts": "2026-06-02T19:26:16",
+      "status": "failed",
+      "duration_ms": 5832,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "tc_pass_e2e",
+      "ts": "2026-06-02T19:26:17",
+      "status": "passed",
+      "duration_ms": 1668,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "tc_fail_e2e",
+      "ts": "2026-06-02T19:26:22",
+      "status": "failed",
+      "duration_ms": 4479,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "tc_pass_e2e",
+      "ts": "2026-06-02T19:26:40",
+      "status": "passed",
+      "duration_ms": 1757,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "tc_fail_e2e",
+      "ts": "2026-06-02T19:26:45",
+      "status": "failed",
+      "duration_ms": 4989,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "8b937a55-2228-4eaf-a6a3-512f76a5b159",
+      "ts": "2026-06-03T08:40:09",
+      "status": "failed",
+      "duration_ms": 31991,
+      "browser": "chromium",
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "8b937a55-2228-4eaf-a6a3-512f76a5b159",
+      "ts": "2026-06-03T13:31:59",
+      "status": "passed",
+      "duration_ms": 22616,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "8b937a55-2228-4eaf-a6a3-512f76a5b159",
+      "ts": "2026-06-03T13:33:51",
+      "status": "passed",
+      "duration_ms": 28354,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "51b70d8f-f4cd-49c4-8acb-dac4b67128fe",
+      "ts": "2026-06-03T16:13:42",
+      "status": "failed",
+      "duration_ms": 23662,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "51b70d8f-f4cd-49c4-8acb-dac4b67128fe",
+      "ts": "2026-06-03T16:39:45",
+      "status": "failed",
+      "duration_ms": 35819,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 30000,
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "51b70d8f-f4cd-49c4-8acb-dac4b67128fe",
+      "ts": "2026-06-03T16:43:55",
+      "status": "failed",
+      "duration_ms": 64069,
+      "browser": "chromium",
+      "nav_timeout_ms": 59000,
+      "elem_timeout_ms": 30000,
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "51b70d8f-f4cd-49c4-8acb-dac4b67128fe",
+      "ts": "2026-06-03T16:45:16",
+      "status": "failed",
+      "duration_ms": 49953,
+      "browser": "chromium",
+      "nav_timeout_ms": 59000,
+      "elem_timeout_ms": 30000,
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "861b40c3-cc51-4cf4-913d-a308cabedc67",
+      "ts": "2026-06-03T16:49:30",
+      "status": "failed",
+      "duration_ms": 44578,
+      "browser": "chromium",
+      "nav_timeout_ms": 45000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "b617b3c8-7c31-4970-a74d-a16289c95134",
+      "ts": "2026-06-04T09:43:48",
+      "status": "failed",
+      "duration_ms": 29809,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 1,
+      "error": "exit_code=1"
+    },
+    {
+      "tc_id": "c771f1b2-0917-42ed-b6f8-66dc2416c2e7",
+      "ts": "2026-06-04T12:21:29",
+      "status": "passed",
+      "duration_ms": 30083,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tc_id": "c771f1b2-0917-42ed-b6f8-66dc2416c2e7",
+      "ts": "2026-06-04T12:22:52",
+      "status": "passed",
+      "duration_ms": 29056,
+      "browser": "chromium",
+      "nav_timeout_ms": 30000,
+      "elem_timeout_ms": 10000,
+      "screenshot": null,
+      "exit_code": 0,
+      "error": null
+    }
+  ]
+}

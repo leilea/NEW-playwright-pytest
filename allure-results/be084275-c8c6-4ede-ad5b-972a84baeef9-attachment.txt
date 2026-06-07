@@ -1,0 +1,1 @@
+[32mINFO    [0m lib.web_actions:web_actions.py:12 Navigate to https://demoqa.com/login

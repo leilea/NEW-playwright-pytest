@@ -1,0 +1,1 @@
+INFO     lib.web_actions:web_actions.py:12 Navigate to https://demoqa.com/elements

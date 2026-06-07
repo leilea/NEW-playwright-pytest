@@ -1,0 +1,4 @@
+2026-06-01 23:51:09,736 - INFO - Navigate to https://demoqa.com/login
+2026-06-01 23:51:35,944 - INFO - Fill #userName = invalid
+2026-06-01 23:51:36,004 - INFO - Fill #password = wrong
+2026-06-01 23:51:36,033 - INFO - Click: #login

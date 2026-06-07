@@ -1,0 +1,367 @@
+/* =====================================================================
+ * global.css  —  Streamlit 类名覆盖层
+ * ---------------------------------------------------------------------
+ * 依赖：design_tokens.css（必须先于本文件 import）
+ * 用法：streamlit_app/utils/style.py 读入本文件后通过 st.markdown 注入
+ *
+ * 覆盖目标：body 字号 / padding / 紧凑化 / accent 一致性。
+ * 业务代码（page_*.py）完全不动 —— 视觉调整走 CSS 覆盖，对调用方透明。
+ * ===================================================================== */
+
+@import './design_tokens.css';
+
+
+/* ---------- 根容器 / 整体排版 ---------- */
+
+.stApp {
+  background-color: var(--color-bg);
+  font-family: var(--font-sans);
+  color: var(--color-text);
+}
+
+[data-testid="stMainBlockContainer"] {
+  padding: 1.25rem 1.5rem 3rem;
+  max-width: 100%;
+}
+
+
+/* ---------- 通用 Markdown / Text ---------- */
+
+.stMarkdown p,
+.stMarkdown li,
+.stText,
+[data-testid="stMarkdownContainer"] p {
+  font-size: var(--text-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+}
+
+.stMarkdown small,
+.stCaption,
+[data-testid="stCaptionContainer"] {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- 标题 ---------- */
+
+h1, .stMarkdown h1 {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--space-3) 0;
+}
+
+h2, .stMarkdown h2 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  margin: var(--space-4) 0 var(--space-2) 0;
+}
+
+h3, .stMarkdown h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  margin: var(--space-3) 0 var(--space-2) 0;
+}
+
+h4, .stMarkdown h4 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  margin: var(--space-2) 0;
+}
+
+
+/* ---------- Metric（核心：原本 32px 偏大） ---------- */
+
+[data-testid="stMetric"] {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-testid="stMetric"] [data-testid="stMetricLabel"] {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+[data-testid="stMetric"] [data-testid="stMetricValue"] {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+[data-testid="stMetric"] [data-testid="stMetricDelta"] {
+  font-size: var(--text-xs);
+}
+
+
+/* ---------- Button（主按钮用 accent） ---------- */
+
+.stButton > button,
+.stDownloadButton > button,
+.stFormSubmitButton > button {
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover,
+.stFormSubmitButton > button:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-hover);
+}
+
+.stButton > button:focus,
+.stButton > button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.stButton > button[kind="primary"],
+.stButton > button[data-testid="baseButton-primary"] {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.stButton > button[kind="primary"]:hover,
+.stButton > button[data-testid="baseButton-primary"]:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.stButton > button[kind="primary"]:active,
+.stButton > button[data-testid="baseButton-primary"]:active {
+  background-color: var(--color-accent-active);
+  border-color: var(--color-accent-active);
+}
+
+
+/* ---------- DataFrame（紧凑表） ---------- */
+
+.stDataFrame,
+[data-testid="stDataFrame"] {
+  font-size: var(--text-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-surface);
+}
+
+[data-testid="stDataFrame"] thead th {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-2);
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+[data-testid="stDataFrame"] tbody td {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  padding: 0.35rem 0.6rem;
+  line-height: var(--line-height-base);
+}
+
+
+/* ---------- Tabs ---------- */
+
+.stTabs [data-baseweb="tab-list"] {
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stTabs [data-baseweb="tab"] {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  padding: 0.5rem 0.9rem;
+  border-bottom: 2px solid transparent;
+  background-color: transparent;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface-hover);
+}
+
+.stTabs [aria-selected="true"][data-baseweb="tab"] {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+
+/* ---------- Sidebar ---------- */
+
+[data-testid="stSidebar"] {
+  background-color: var(--color-surface-2);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-3);
+}
+
+[data-testid="stSidebar"] .stMarkdown h1,
+[data-testid="stSidebar"] h1 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: var(--space-2) 0;
+}
+
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- Expander ---------- */
+
+.streamlit-expanderHeader,
+[data-testid="stExpander"] details summary {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.8rem;
+}
+
+[data-testid="stExpander"] details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+
+/* ---------- Code block ---------- */
+
+.stCodeBlock,
+[data-testid="stCodeBlock"] {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  line-height: var(--line-height-base);
+}
+
+code, pre, kbd {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+
+/* ---------- Alert（4 个状态色） ---------- */
+
+.stAlert,
+[data-testid="stAlert"] {
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  padding: 0.6rem 0.9rem;
+  border-left-width: 3px;
+}
+
+[data-testid="stAlert"][data-baseweb="notification"] {
+  background-color: var(--color-info-soft);
+  border-left-color: var(--color-info);
+  color: var(--color-text);
+}
+
+[data-testid="stAlert"][kind="success"],
+[data-testid="stAlert"]:has(svg[data-testid="stAlertSuccessIcon"]) {
+  background-color: var(--color-success-soft);
+  border-left-color: var(--color-success);
+  color: var(--color-text);
+}
+
+[data-testid="stAlert"][kind="error"],
+[data-testid="stAlert"][kind="danger"],
+[data-testid="stAlert"]:has(svg[data-testid="stAlertErrorIcon"]) {
+  background-color: var(--color-danger-soft);
+  border-left-color: var(--color-danger);
+  color: var(--color-text);
+}
+
+[data-testid="stAlert"][kind="warning"],
+[data-testid="stAlert"]:has(svg[data-testid="stAlertWarningIcon"]) {
+  background-color: var(--color-warning-soft);
+  border-left-color: var(--color-warning);
+  color: var(--color-text);
+}
+
+
+/* ---------- Input / Select ---------- */
+
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"] > div,
+.stMultiSelect div[data-baseweb="select"] > div {
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus,
+.stNumberInput input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-soft);
+  outline: none;
+}
+
+[data-testid="stCheckbox"] label,
+[data-testid="stRadio"] label {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+
+/* ---------- Progress / Spinner ---------- */
+
+[data-testid="stProgress"] > div > div > div > div {
+  background-color: var(--color-accent);
+}
+
+
+/* ---------- Divider ---------- */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-divider);
+  margin: var(--space-4) 0;
+}
+
+
+/* ---------- Link ---------- */
+
+a, a:visited {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}

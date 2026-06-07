@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Zntest\NEW-playwright-pytest-main\logs\_playback_tmp_e1b397ab83b34933a24f1fb3a829794a.py", line 10, in <module>
+    exec(compile('from playwright.sync_api import sync_playwright\n\n\ndef run(playwright) -> None:\n    browser = playwright.chromium.launch(headless=True)\n    context = browser.new_context()\n    page = context.new_page()\n    page.goto("https://example.com", wait_until="domcontentloaded", timeout=15000)\n    page.click("#nonexistent-button-xyz", timeout=3000)\n    context.close()\n    browser.close()\n\n\nwith sync_playwright() as playwright:\n    run(playwright)\n', "<playback_user>", "exec"), {"__name__": "__main__"})
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<playback_user>", line 15, in <module>
+  File "<playback_user>", line 9, in run
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\playwright\sync_api\_generated.py", line 9905, in click
+    self._sync(
+    ~~~~~~~~~~^
+        self._impl_obj.click(
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ~~~~~~~~~~~^^
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\playwright\_impl\_page.py", line 828, in click
+    return await self._main_frame.click(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\playwright\_impl\_frame.py", line 488, in click
+    await self._channel.send("click", locals_to_params(locals()))
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\playwright\_impl\_connection.py", line 59, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: self.inner_send(method, params, False)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\playwright\_impl\_connection.py", line 520, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.click: Timeout 3000ms exceeded.
+Call log:
+waiting for locator("#nonexistent-button-xyz")
+
+[PLAYBACK] FAILED;SCREENSHOT=none

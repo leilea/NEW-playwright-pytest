@@ -1,0 +1,609 @@
+{
+  "testcases": [
+    {
+      "id": "8b937a55-2228-4eaf-a6a3-512f76a5b159",
+      "name": "采购需求登录",
+      "priority": "P1",
+      "description": "",
+      "script": "import re\nfrom playwright.sync_api import Playwright, sync_playwright, expect\n\n\ndef run(playwright: Playwright) -> None:\n    browser = playwright.chromium.launch(headless=False)\n    context = browser.new_context()\n    page = context.new_page()\n    page.goto(\"https://dsep-portal-test.minmetals.com.cn/portal/signin\")\n    page.get_by_placeholder(\"输入账号\").click()\n    page.get_by_placeholder(\"输入账号\").click()\n    page.get_by_placeholder(\"输入账号\").click()\n    page.get_by_placeholder(\"输入账号\").fill(\"zhangbaohua\")\n    page.get_by_placeholder(\"输入密码\").click()\n    page.get_by_placeholder(\"输入密码\").fill(\"3657801987Aa!\")\n    page.locator(\".el-checkbox__inner\").first.click()\n    page.get_by_role(\"button\", name=\"登录\").click()\n    page.get_by_role(\"menuitem\", name=\"个人门户\").click()\n    page.locator(\"div\").filter(has_text=re.compile(r\"^采购需求$\")).get_by_role(\"img\").click()\n    page.locator(\"path:nth-child(14)\").first.click()\n    page.get_by_text(\"退出登录\").click()\n    page.get_by_role(\"button\", name=\"确定\").click()\n\n    # ---------------------\n    context.close()\n    browser.close()\n\n\nwith sync_playwright() as playwright:\n    run(playwright)\n",
+      "source": "recording",
+      "steps": [
+        {
+          "id": "9ee59175-d7df-48dc-98b7-756364b8662a",
+          "action": "unknown",
+          "selector": "import re",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "ca9b615f-2f53-455e-bd6e-b688453333f8",
+          "action": "unknown",
+          "selector": "from playwright.sync_api import Playwright, sync_playwright, expect",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "922b6d71-c754-48ff-914b-1b953372bf4f",
+          "action": "unknown",
+          "selector": "def run(playwright: Playwright) -> None:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "49ad544e-d930-43cd-acbc-86ac656a0b68",
+          "action": "unknown",
+          "selector": "browser = playwright.chromium.launch(headless=False)",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "294b60b0-803e-4126-adcc-88851ee84a8f",
+          "action": "unknown",
+          "selector": "context = browser.new_context()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "208d8b3d-a969-4c7f-80e1-1e147652ccae",
+          "action": "unknown",
+          "selector": "page = context.new_page()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "3efd15ec-a14a-4435-a936-363d9dd079ea",
+          "action": "navigate",
+          "selector": "https://dsep-portal-test.minmetals.com.cn/portal/signin",
+          "value": "",
+          "description": "页面导航"
+        },
+        {
+          "id": "364335a0-f6bc-4982-9a94-2d5bc10fe492",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "5b6eca7c-c621-4c0c-a844-a073c4d462b3",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "2c54911a-765a-48dd-b523-3d41d377b3d1",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "2dfe33fd-3e95-469c-b878-5e2461dfe773",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").fill(\"zhangbaohua\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "ade9a0e2-95bd-44a2-8084-a506b747bcf6",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入密码\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "0313c1bc-0de5-4a3d-af14-6779f0c133f1",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入密码\").fill(\"3657801987Aa!\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "4909c7d7-56b6-4467-9a83-931bf7706839",
+          "action": "unknown",
+          "selector": "page.locator(\".el-checkbox__inner\").first.click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "5d1682ab-05e8-492d-86bb-ae6449030209",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"button\", name=\"登录\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "1e07fba1-699c-47f5-b905-6b5dab599588",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"menuitem\", name=\"个人门户\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "97ab1e13-2a7a-41f0-99af-89725a7c293d",
+          "action": "unknown",
+          "selector": "page.locator(\"div\").filter(has_text=re.compile(r\"^采购需求$\")).get_by_role(\"img\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "0ec8348d-13c4-4cd9-b279-77691f4d4940",
+          "action": "unknown",
+          "selector": "page.locator(\"path:nth-child(14)\").first.click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "91fd3157-cca2-42bf-96e9-f27087a9b982",
+          "action": "unknown",
+          "selector": "page.get_by_text(\"退出登录\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "2253dde2-d50c-452e-b652-752c4714e772",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"button\", name=\"确定\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "061ef0c9-3363-4f16-9732-b3591863e116",
+          "action": "unknown",
+          "selector": "context.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "ea9e7e3a-6027-46c2-81be-b25d046d4bcc",
+          "action": "unknown",
+          "selector": "browser.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "5afd7e1d-1d3f-46b1-9d39-484399ba6741",
+          "action": "unknown",
+          "selector": "with sync_playwright() as playwright:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "8d1508f7-65b9-4ce9-87e7-caeb454ed1fe",
+          "action": "unknown",
+          "selector": "run(playwright)",
+          "value": "",
+          "description": "未知操作"
+        }
+      ],
+      "created_at": "2026-06-02T18:47:23.391752",
+      "updated_at": "2026-06-02T18:47:23.391752",
+      "suite_id": "b6616903-bc70-4333-9e7e-5908436aa9dd"
+    },
+    {
+      "id": "81e10ff3-a926-4467-857e-967779544f79",
+      "name": "采购需求添加2",
+      "priority": "P1",
+      "description": "test",
+      "script": "import re\nfrom playwright.sync_api import Playwright, sync_playwright, expect\n\n\ndef run(playwright: Playwright) -> None:\n    browser = playwright.chromium.launch(headless=False)\n    context = browser.new_context()\n    page = context.new_page()\n    page.goto(\"about:blank\")\n\n    # ---------------------\n    context.close()\n    browser.close()\n\n\nwith sync_playwright() as playwright:\n    run(playwright)\n",
+      "source": "recording",
+      "steps": [
+        {
+          "id": "aade7f1a-9dfa-43ce-9e5f-68afe05a44e4",
+          "action": "unknown",
+          "selector": "import re",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "14b4a4f2-c459-4788-a56f-af8919ce0ddb",
+          "action": "unknown",
+          "selector": "from playwright.sync_api import Playwright, sync_playwright, expect",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "0d0b37b6-afa6-4623-8098-a913a0e010a6",
+          "action": "unknown",
+          "selector": "def run(playwright: Playwright) -> None:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "a0d96493-b430-469e-8379-a7b93092d379",
+          "action": "unknown",
+          "selector": "browser = playwright.chromium.launch(headless=False)",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "dd4a68ec-3ae8-4704-b053-1f9e064bba2d",
+          "action": "unknown",
+          "selector": "context = browser.new_context()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "f9c14466-c170-41a0-8b2f-4b3f3c3211b3",
+          "action": "unknown",
+          "selector": "page = context.new_page()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "00a98afd-e988-4d53-8068-be689eef2bc5",
+          "action": "navigate",
+          "selector": "about:blank",
+          "value": "",
+          "description": "页面导航"
+        },
+        {
+          "id": "11ca022c-56e6-4de4-a957-07239be2a60b",
+          "action": "unknown",
+          "selector": "context.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "eb679566-ab55-481f-88e4-2322e954c128",
+          "action": "unknown",
+          "selector": "browser.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "8342ebcf-7c06-4da9-a1d6-be8f596f7e3d",
+          "action": "unknown",
+          "selector": "with sync_playwright() as playwright:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "5404f9c5-f9d6-41b4-8e2e-3c7e49a96acc",
+          "action": "unknown",
+          "selector": "run(playwright)",
+          "value": "",
+          "description": "未知操作"
+        }
+      ],
+      "created_at": "2026-06-03T16:05:58.578982",
+      "updated_at": "2026-06-03T16:07:00.866264",
+      "suite_id": "b6616903-bc70-4333-9e7e-5908436aa9dd"
+    },
+    {
+      "id": "793fc34e-eed2-45dd-b416-d42401c3e2e7",
+      "name": "111",
+      "priority": "P1",
+      "description": "通过 Playwright 录制自动创建",
+      "script": "import re\nfrom playwright.sync_api import Playwright, sync_playwright, expect\n\n\ndef run(playwright: Playwright) -> None:\n    browser = playwright.chromium.launch(headless=False)\n    context = browser.new_context(viewport={\"width\":1280,\"height\":720})\n    page = context.new_page()\n    page.goto(\"https://dsep-portal-test.minmetals.com.cn/portal/signin\")\n    page.get_by_placeholder(\"输入密码\").click()\n    page.get_by_placeholder(\"输入密码\").fill(\"3657801987Aa!\")\n    page.get_by_label(\"账号登录\").locator(\"i\").nth(2).click()\n    page.get_by_placeholder(\"输入账号\").click()\n    page.get_by_placeholder(\"输入账号\").fill(\"zhangbaohua\")\n    page.locator(\".el-checkbox__inner\").first.click()\n    page.get_by_role(\"button\", name=\"登录\").click()\n    page.get_by_role(\"menuitem\", name=\"个人门户\").click()\n    page.locator(\"div:nth-child(8) > .img-container > img\").click()\n    page.locator(\".account-modal-info-img > path\").first.click()\n    page.get_by_role(\"button\", name=\"确定\").click()\n\n    # ---------------------\n    context.close()\n    browser.close()\n\n\nwith sync_playwright() as playwright:\n    run(playwright)\n",
+      "source": "recording",
+      "steps": [
+        {
+          "id": "5c84aba1-b446-4306-9df1-170a6e6e067f",
+          "action": "unknown",
+          "selector": "import re",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "c3d5deff-37bc-440d-adcc-2a0050c5160d",
+          "action": "unknown",
+          "selector": "from playwright.sync_api import Playwright, sync_playwright, expect",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "e9cbce46-3f5c-409b-b13c-3653580a80e4",
+          "action": "unknown",
+          "selector": "def run(playwright: Playwright) -> None:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "c50f210a-f504-4727-af69-c9e004db9893",
+          "action": "unknown",
+          "selector": "browser = playwright.chromium.launch(headless=False)",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "8420a708-0e9b-4f4c-815d-a6a6405f0c09",
+          "action": "unknown",
+          "selector": "context = browser.new_context(viewport={\"width\":1280,\"height\":720})",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "d7e950e1-fdc4-4693-bab9-8e7af71e0029",
+          "action": "unknown",
+          "selector": "page = context.new_page()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "41e0f7c6-b5d6-4bda-b669-47178d024e1f",
+          "action": "navigate",
+          "selector": "https://dsep-portal-test.minmetals.com.cn/portal/signin",
+          "value": "",
+          "description": "页面导航"
+        },
+        {
+          "id": "ae07f895-f312-4615-bc89-0922f8d0d431",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入密码\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "ad0c425a-9b97-4295-b1fe-b43633dfb25d",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入密码\").fill(\"3657801987Aa!\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "5a5c3edf-4f3c-4dc0-8b6d-a919360a2c89",
+          "action": "unknown",
+          "selector": "page.get_by_label(\"账号登录\").locator(\"i\").nth(2).click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "4ee91cf6-c8b1-45c1-a174-0d1f8966cb8d",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "6ef51310-657a-4ab8-a6cb-a161f2ab317e",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").fill(\"zhangbaohua\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "46c3f6db-a511-4f6a-a77c-9005118e2d09",
+          "action": "unknown",
+          "selector": "page.locator(\".el-checkbox__inner\").first.click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "6c04afeb-7114-4d07-ae3d-df6743099c33",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"button\", name=\"登录\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "46fedb7e-8819-4afc-999c-bb7b4faa80eb",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"menuitem\", name=\"个人门户\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "27843292-4dcb-4ddb-a985-566a7f312da8",
+          "action": "unknown",
+          "selector": "page.locator(\"div:nth-child(8) > .img-container > img\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "7ca8a836-6398-4ebc-a65a-b277a2a42b0f",
+          "action": "unknown",
+          "selector": "page.locator(\".account-modal-info-img > path\").first.click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "1cbb676a-e0b7-4ed7-b25d-89c94112c061",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"button\", name=\"确定\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "cb4f5514-6ee7-4a2d-adb3-316fcddc28bc",
+          "action": "unknown",
+          "selector": "context.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "3230fc88-de9a-4802-a0bf-9b4ee2f31bd3",
+          "action": "unknown",
+          "selector": "browser.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "86a6cacf-47a0-430d-936e-76defeee1887",
+          "action": "unknown",
+          "selector": "with sync_playwright() as playwright:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "c8b327f0-b9f0-45ca-82fd-9ee5d7e68379",
+          "action": "unknown",
+          "selector": "run(playwright)",
+          "value": "",
+          "description": "未知操作"
+        }
+      ],
+      "created_at": "2026-06-04T09:58:16.617715",
+      "updated_at": "2026-06-04T09:58:16.617715",
+      "suite_id": "b6616903-bc70-4333-9e7e-5908436aa9dd"
+    },
+    {
+      "id": "b7a2f409-f805-4eaa-b65b-3297c28d4633",
+      "name": "222",
+      "priority": "P1",
+      "description": "通过 Playwright 录制自动创建",
+      "script": "import re\nfrom playwright.sync_api import Playwright, sync_playwright, expect\n\n\ndef run(playwright: Playwright) -> None:\n    browser = playwright.chromium.launch(headless=False)\n    context = browser.new_context(viewport={\"width\":1280,\"height\":720})\n    page = context.new_page()\n    page.goto(\"https://dsep-portal-test.minmetals.com.cn/portal/signin\")\n    page.get_by_placeholder(\"输入账号\").click()\n    page.get_by_placeholder(\"输入账号\").fill(\"zhangbaohua\")\n    page.get_by_placeholder(\"输入账号\").press(\"Tab\")\n    page.get_by_placeholder(\"输入密码\").click(button=\"right\")\n    page.get_by_placeholder(\"输入密码\").fill(\"3657801987Aa!\")\n    with page.expect_popup() as page1_info:\n        page.locator(\"div\").filter(has_text=re.compile(r\"^我已阅读并同意《服务协议》 及 《隐私政策》$\")).nth(2).click()\n    page1 = page1_info.value\n    page1.close()\n    page.locator(\".el-checkbox__inner\").first.click()\n    page.get_by_role(\"button\", name=\"登录\").click()\n\n    # ---------------------\n    context.close()\n    browser.close()\n\n\nwith sync_playwright() as playwright:\n    run(playwright)\n",
+      "source": "recording",
+      "steps": [
+        {
+          "id": "d7b44edd-2eb2-4df1-9750-f88e796e158e",
+          "action": "unknown",
+          "selector": "import re",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "d352d416-f04b-4a55-be6d-f7b543cf9237",
+          "action": "unknown",
+          "selector": "from playwright.sync_api import Playwright, sync_playwright, expect",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "5d5c3079-2f38-439a-966e-eaffcd26cb24",
+          "action": "unknown",
+          "selector": "def run(playwright: Playwright) -> None:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "1e0ee08c-e4eb-4c44-93c0-f74c22ce2e48",
+          "action": "unknown",
+          "selector": "browser = playwright.chromium.launch(headless=False)",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "6d7255ab-bbb7-4268-9d1d-f39ee92bf401",
+          "action": "unknown",
+          "selector": "context = browser.new_context(viewport={\"width\":1280,\"height\":720})",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "6dffab0d-0921-48c7-a13b-842b9acde332",
+          "action": "unknown",
+          "selector": "page = context.new_page()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "68ab5fe9-5144-48c7-8f94-e0e09a29ff5b",
+          "action": "navigate",
+          "selector": "https://dsep-portal-test.minmetals.com.cn/portal/signin",
+          "value": "",
+          "description": "页面导航"
+        },
+        {
+          "id": "47c5917e-a970-41f3-a236-5b339aa9b9d5",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "3cabdea5-6bd0-46e7-aa99-c2b4cd9eed67",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").fill(\"zhangbaohua\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "91181beb-fe73-4974-8ff8-ffe5ae6c9e1a",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入账号\").press(\"Tab\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "64a9d9a7-626d-4d97-8806-418339c57b0f",
+          "action": "click",
+          "selector": "button=\"right\"",
+          "value": "",
+          "description": "点击元素"
+        },
+        {
+          "id": "96f11fca-bada-46b0-926e-4e73020c8890",
+          "action": "unknown",
+          "selector": "page.get_by_placeholder(\"输入密码\").fill(\"3657801987Aa!\")",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "4b1ac81a-9e01-4cd9-90f4-63b8dc1cbaf0",
+          "action": "unknown",
+          "selector": "with page.expect_popup() as page1_info:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "9d6febba-14ce-4e33-bbcb-aa0564ba3878",
+          "action": "unknown",
+          "selector": "page.locator(\"div\").filter(has_text=re.compile(r\"^我已阅读并同意《服务协议》 及 《隐私政策》$\")).nth(2).click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "84d3fc60-316e-462d-b8d6-2756cffc597f",
+          "action": "unknown",
+          "selector": "page1 = page1_info.value",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "308ba528-ad81-4333-812d-e7f177109d0d",
+          "action": "unknown",
+          "selector": "page1.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "87df9f44-fdb9-4413-97d5-c1c37ee2acb4",
+          "action": "unknown",
+          "selector": "page.locator(\".el-checkbox__inner\").first.click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "047c8d95-d356-4793-a5a8-2b516762601e",
+          "action": "unknown",
+          "selector": "page.get_by_role(\"button\", name=\"登录\").click()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "06d8279e-7669-4f18-8fd7-70b5066ca2df",
+          "action": "unknown",
+          "selector": "context.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "804c5eb3-e641-4976-a5f8-a7ac75f69c90",
+          "action": "unknown",
+          "selector": "browser.close()",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "d80c5201-cc29-4574-8893-78e82a499d39",
+          "action": "unknown",
+          "selector": "with sync_playwright() as playwright:",
+          "value": "",
+          "description": "未知操作"
+        },
+        {
+          "id": "a280b08f-f3cd-4759-8d21-ed0cbba0b9c4",
+          "action": "unknown",
+          "selector": "run(playwright)",
+          "value": "",
+          "description": "未知操作"
+        }
+      ],
+      "created_at": "2026-06-04T13:32:45.684240",
+      "updated_at": "2026-06-04T13:32:45.684240",
+      "suite_id": "b6616903-bc70-4333-9e7e-5908436aa9dd"
+    }
+  ]
+}

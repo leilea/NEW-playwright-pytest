@@ -1,0 +1,4 @@
+INFO     lib.web_actions:web_actions.py:12 Navigate to https://demoqa.com/login
+INFO     lib.web_actions:web_actions.py:20 Fill #userName = invalid
+INFO     lib.web_actions:web_actions.py:20 Fill #password = wrong
+INFO     lib.web_actions:web_actions.py:16 Click: #login

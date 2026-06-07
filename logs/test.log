@@ -1,0 +1,21 @@
+2026-06-01 23:50:08,908 - INFO - Navigate to https://demoqa.com/elements
+2026-06-01 23:50:39,319 - INFO - Navigate to https://demoqa.com/login
+2026-06-01 23:51:09,736 - INFO - Navigate to https://demoqa.com/login
+2026-06-01 23:51:35,944 - INFO - Fill #userName = invalid
+2026-06-01 23:51:36,004 - INFO - Fill #password = wrong
+2026-06-01 23:51:36,033 - INFO - Click: #login
+2026-06-01 23:51:52,338 - INFO - Navigate to https://demoqa.com/elements
+2026-06-01 23:52:22,776 - INFO - Navigate to https://demoqa.com/login
+2026-06-02 16:43:29,058 - INFO - Navigate to https://demoqa.com/elements
+2026-06-02 16:43:59,354 - INFO - Navigate to https://demoqa.com/login
+2026-06-02 16:44:29,586 - INFO - Navigate to https://demoqa.com/login
+2026-06-02 16:44:59,817 - INFO - Navigate to https://demoqa.com/elements
+2026-06-02 16:45:27,656 - INFO - Fill #userName = John Doe
+2026-06-02 16:45:57,853 - INFO - Navigate to https://demoqa.com/login
+2026-06-02 16:46:20,518 - INFO - Fill #userName = testuser
+2026-06-02 16:46:20,555 - INFO - Fill #password = Test@123
+2026-06-02 16:46:20,573 - INFO - Click: #login
+2026-06-02 16:46:20,779 - INFO - Navigate to https://demoqa.com/login
+2026-06-02 16:46:44,325 - INFO - Fill #userName = invalid
+2026-06-02 16:46:44,351 - INFO - Fill #password = wrong
+2026-06-02 16:46:44,364 - INFO - Click: #login
