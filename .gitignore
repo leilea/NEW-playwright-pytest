@@ -4,3 +4,15 @@ frontend/node_modules/
 frontend/dist/
 allure-results/
 logs/*.log
+
+# Env / secrets — untrack 已在 baseline 跟踪的 .env
+.env
+.env.local
+.env.*.local
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
