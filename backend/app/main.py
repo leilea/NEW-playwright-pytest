@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.bootstrap import bootstrap_admin
 from app.config import settings
 from app.db.session import engine
-from app.routers import health, auth, suites, cases, dashboard
+from app.routers import health, auth, suites, cases, dashboard, reports, config
 
 
 @asynccontextmanager
@@ -29,3 +29,5 @@ app.include_router(auth.router)
 app.include_router(suites.router)
 app.include_router(cases.router)
 app.include_router(dashboard.router)
+app.include_router(reports.router, prefix="/api")
+app.include_router(config.router, prefix="/api")
