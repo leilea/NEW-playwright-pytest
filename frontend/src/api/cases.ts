@@ -1,7 +1,7 @@
-import type { Case, Step } from '@/types/step'
+import type { Case, Step as StepType } from '@/types'
 import api from './client'
 
-export type { Case } from '@/types/step'
+export type { Case } from '@/types'
 
 export async function list(suiteId?: number): Promise<Case[]> {
   const params = suiteId ? { suite_id: suiteId } : {}

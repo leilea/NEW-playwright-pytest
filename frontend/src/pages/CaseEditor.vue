@@ -29,7 +29,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { list as listSuites } from '@/api/suites'
 import * as casesApi from '@/api/cases'
 import StepEditor from '@/components/StepEditor.vue'
-import type { Step } from '@/types/step'
+import type { Step } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,7 +39,7 @@ const isNew = computed(() => !route.params.id || route.params.id === 'new')
 const suites = ref<{ id: number; name: string }[]>([])
 const form = ref({
   name: '',
-  suite_id: null as number | null,
+  suite_id: undefined as number | undefined,
   steps: [] as Step[],
 })
 

@@ -5,6 +5,7 @@ import type { User } from '@/api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  const token = ref<string | null>(null)
   const roles = computed(() => user.value?.roles ?? [])
 
   async function refresh() {
@@ -18,8 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     await api.logout()
     user.value = null
+    token.value = null
     location.href = '/login'
   }
   function hasRole(r: string) { return roles.value.includes(r as any) }
-  return { user, roles, refresh, login, logout, hasRole }
+  function clearAuth() { user.value = null; token.value = null }
+  return { user, token, roles, refresh, login, logout, hasRole, clearAuth }
 })

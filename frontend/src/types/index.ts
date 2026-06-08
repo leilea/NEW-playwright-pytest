@@ -26,30 +26,14 @@ export interface Case {
   suite_id: number
   name: string
   tags: string[]
-  steps: Step[]
+  steps: import('./step').Step[]
   owner_id: number | null
   created_at: string
   updated_at: string
 }
 
-export type ActionName =
-  | 'goto'
-  | 'click'
-  | 'fill'
-  | 'expect'
-  | 'check'
-  | 'select'
-  | 'hover'
-  | 'wait'
-  | 'screenshot'
-  | 'scroll'
-  | 'eval'
-
-export interface Step {
-  action: ActionName
-  target: string
-  value: string
-}
+export type ActionName = import('./step').ActionName
+export type { Step } from './step'
 
 export interface Run {
   id: number

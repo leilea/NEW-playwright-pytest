@@ -8,7 +8,7 @@
       <vxe-column field="seq" title="#" width="50" />
       <vxe-column field="action" title="Action" width="140">
         <template #default="{ row }">
-          <vxe-select v-model="row.action" @change="(v:string) => changeAction(row, v)">
+          <vxe-select v-model="row.action" @change="({ value }: any) => changeAction(row, value)">
             <vxe-option v-for="a in actionNames" :key="a" :value="a" :label="STEP_SCHEMAS[a].label" />
           </vxe-select>
         </template>

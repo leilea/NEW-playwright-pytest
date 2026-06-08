@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import EChart from '@/components/EChart.vue'
-import { http } from '@/api/client'
+import { api } from '@/api/client'
 
-const { data: sum } = useQuery({ queryKey: ['dash-summary'], queryFn: () => http.get('/dashboard/summary').then(r => r.data) })
-const { data: trends } = useQuery({ queryKey: ['dash-trends'], queryFn: () => http.get('/dashboard/trends').then(r => r.data) })
+const { data: sum } = useQuery({ queryKey: ['dash-summary'], queryFn: () => api.get('/dashboard/summary').then((r: any) => r.data) })
+const { data: trends } = useQuery({ queryKey: ['dash-trends'], queryFn: () => api.get('/dashboard/trends').then((r: any) => r.data) })
 
 const statusPie = computed(() => ({
   tooltip: { trigger: 'item' },

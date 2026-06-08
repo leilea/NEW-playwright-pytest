@@ -17,19 +17,19 @@
 import { ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { list } from '@/api/cases'
-import { useAuthStore } from '@/stores/auth'
+import type { Case } from '@/types'
 
-const auth = useAuthStore()
 const selectedCase = ref<number | null>(null)
 const loading = ref(false)
 const result = ref<any>(null)
-const { data: cases = [] } = useQuery({ queryKey: ['cases'], queryFn: () => list() })
+const { data: cases } = useQuery({ queryKey: ['cases'], queryFn: () => list() })
 
 async function loadCase() { result.value = null }
 async function run() {
   loading.value = true
   const ws = new WebSocket(`ws://${location.host}/ws/playback`)
-  ws.onopen = () => ws.send(JSON.stringify({ action: 'start', case_name: cases.value.find(c => c.id === selectedCase.value)?.name || 'unnamed', steps: [], browser: 'chromium' }))
+  const caseList = cases.value ?? []
+  ws.onopen = () => ws.send(JSON.stringify({ action: 'start', case_name: caseList.find((c: Case) => c.id === selectedCase.value)?.name || 'unnamed', steps: [], browser: 'chromium' }))
   ws.onmessage = (e) => { const msg = JSON.parse(e.data); if (msg.type === 'done') { result.value = msg; loading.value = false } }
   ws.onerror = () => { loading.value = false }
 }
