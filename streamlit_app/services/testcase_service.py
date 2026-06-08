@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple
 
 from streamlit_app.utils import testcase_store, suite_store
 from streamlit_app.utils.testcase_store import load_all, get_by_id, save, delete
+from streamlit_app.services import pg_writer
 
 
 PRIORITY_MAP: Dict[str, str] = {"P0": "🔴 P0", "P1": "🟡 P1", "P2": "🟢 P2"}
@@ -58,6 +59,10 @@ def create_testcase(name: str, priority: str, description: str,
         "updated_at": datetime.now().isoformat(),
     }
     save(tc)
+    try:
+        pg_writer.write_case_to_pg(tc)
+    except Exception:
+        pass
     _touch_suite(suite_id)
     return tc
 
@@ -76,6 +81,10 @@ def update_testcase(tc_id: str, name: str, priority: str,
     tc["steps"] = steps
     tc["updated_at"] = datetime.now().isoformat()
     save(tc)
+    try:
+        pg_writer.write_case_to_pg(tc)
+    except Exception:
+        pass
     _touch_suite(suite_id)
     return tc
 

@@ -50,6 +50,7 @@ def upgrade() -> None:
     )
     op.create_table(
         "suites", sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("legacy_id", sa.String(64), unique=True, nullable=True, index=True),
         sa.Column("name", sa.String(120), nullable=False, index=True),
         sa.Column("description", sa.Text, server_default=""),
         sa.Column("owner_id", sa.Integer, sa.ForeignKey("auth.users.id")),
@@ -59,6 +60,7 @@ def upgrade() -> None:
     )
     op.create_table(
         "cases", sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("legacy_id", sa.String(64), unique=True, nullable=True, index=True),
         sa.Column("suite_id", sa.Integer, sa.ForeignKey("catalog.suites.id", ondelete="CASCADE"), index=True),
         sa.Column("name", sa.String(160), nullable=False, index=True),
         sa.Column("tags", sa.JSON, server_default="[]"),

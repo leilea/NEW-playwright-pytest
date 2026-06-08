@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Tuple
 
 from streamlit_app.utils import suite_store
 from streamlit_app.utils.config_manager import get_current_user
+from streamlit_app.services import pg_writer
 
 
 class SuiteDuplicateError(Exception):
@@ -53,6 +54,10 @@ def create_suite(name: str, version: str, created_by: Optional[str] = None) -> D
         "created_by": created_by or get_current_user(),
     }
     suite_store.save(suite)
+    try:
+        pg_writer.write_suite_to_pg(suite)
+    except Exception:
+        pass
     return suite_store.get_by_id(suite["id"]) or suite
 
 

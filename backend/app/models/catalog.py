@@ -7,6 +7,7 @@ class Suite(Base):
     __tablename__ = "suites"
     __table_args__ = {"schema": "catalog"}
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    legacy_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True, index=True)
     name: Mapped[str] = mapped_column(String(120), index=True)
     description: Mapped[str] = mapped_column(Text, default="")
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("auth.users.id"))
@@ -17,6 +18,7 @@ class Case(Base):
     __tablename__ = "cases"
     __table_args__ = {"schema": "catalog"}
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    legacy_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True, index=True)
     suite_id: Mapped[int] = mapped_column(ForeignKey("catalog.suites.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(160), index=True)
     tags: Mapped[list] = mapped_column(JSON, default=list)
