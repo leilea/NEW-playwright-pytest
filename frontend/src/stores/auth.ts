@@ -1,24 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User } from '@/types'
+import * as api from '@/api/auth'
+import type { User } from '@/api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
-  const token = ref<string | null>(localStorage.getItem('token'))
+  const roles = computed(() => user.value?.roles ?? [])
 
-  const isAuthenticated = computed(() => !!token.value && !!user.value)
-
-  function setAuth(u: User, t: string) {
-    user.value = u
-    token.value = t
-    localStorage.setItem('token', t)
+  async function refresh() {
+    try { user.value = await api.fetchMe() }
+    catch { user.value = null }
   }
-
-  function clearAuth() {
+  async function login(email: string, password: string) {
+    await api.login(email, password)
+    await refresh()
+  }
+  async function logout() {
+    await api.logout()
     user.value = null
-    token.value = null
-    localStorage.removeItem('token')
+    location.href = '/login'
   }
-
-  return { user, token, isAuthenticated, setAuth, clearAuth }
+  function hasRole(r: string) { return roles.value.includes(r as any) }
+  return { user, roles, refresh, login, logout, hasRole }
 })
