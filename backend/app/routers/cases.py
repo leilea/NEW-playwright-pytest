@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from app.deps import get_db, get_current_user
 from app.schemas.catalog import CaseIn, CaseOut
 from app.services import case_service
+from app.services.script_gen import generate_script
 
 router = APIRouter(prefix="/api/cases", tags=["cases"])
 
@@ -45,3 +46,11 @@ async def delete(case_id: int, db=Depends(get_db), user=Depends(get_current_user
     if not ok:
         raise HTTPException(404, "not found")
     return None
+
+
+@router.get("/{case_id}/script")
+async def script(case_id: int, browser: str = Query("chromium"), db=Depends(get_db), user=Depends(get_current_user)):
+    case = await case_service.get_case(db, case_id)
+    if not case:
+        raise HTTPException(404, "not found")
+    return {"script": generate_script(case.name, case.steps or [], browser)}

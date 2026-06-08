@@ -7,6 +7,8 @@ from app.bootstrap import bootstrap_admin
 from app.config import settings
 from app.db.session import engine
 from app.routers import health, auth, suites, cases, dashboard, reports, config, runs
+from app.ws.run_ws import run_ws
+from app.ws.rec_ws import rec_ws
 
 
 @asynccontextmanager
@@ -32,3 +34,5 @@ app.include_router(dashboard.router)
 app.include_router(reports.router, prefix="/api")
 app.include_router(config.router, prefix="/api")
 app.include_router(runs.router, prefix="/api")
+app.add_websocket_route("/ws/run/{run_id}", run_ws)
+app.add_websocket_route("/ws/rec", rec_ws)
