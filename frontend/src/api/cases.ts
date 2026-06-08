@@ -1,8 +1,29 @@
-import { http } from './client'
-import type { Step } from '@/types/step'
-export interface Case { id: number; suite_id: number; name: string; tags: string[]; steps: Step[]; owner_id: number | null; created_at: string; updated_at: string }
-export const list = (suiteId?: number) => http.get<Case[]>('/cases', { params: suiteId ? { suite_id: suiteId } : {} }).then(r => r.data)
-export const get = (id: number) => http.get<Case>(`/cases/${id}`).then(r => r.data)
-export const create = (b: { suite_id: number; name: string; tags?: string[]; steps?: Step[] }) => http.post<Case>('/cases', b).then(r => r.data)
-export const update = (id: number, b: { name?: string; tags?: string[]; steps?: Step[] }) => http.put<Case>(`/cases/${id}`, b).then(r => r.data)
-export const remove = (id: number) => http.delete(`/cases/${id}`).then(r => r.data)
+import type { Case, Step } from '@/types/step'
+import api from './client'
+
+export type { Case } from '@/types/step'
+
+export async function list(suiteId?: number): Promise<Case[]> {
+  const params = suiteId ? { suite_id: suiteId } : {}
+  const { data } = await api.get('/cases', { params })
+  return data
+}
+
+export async function get(id: number): Promise<Case> {
+  const { data } = await api.get(`/cases/${id}`)
+  return data
+}
+
+export async function create(payload: Partial<Case>): Promise<Case> {
+  const { data } = await api.post('/cases', payload)
+  return data
+}
+
+export async function update(id: number, payload: Partial<Case>): Promise<Case> {
+  const { data } = await api.put(`/cases/${id}`, payload)
+  return data
+}
+
+export async function remove(id: number): Promise<void> {
+  await api.delete(`/cases/${id}`)
+}
