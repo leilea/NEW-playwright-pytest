@@ -3,14 +3,27 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import text
 
-from app.main import app
+from app.main import app as fastapi_app
 from app.db.base import Base
 import app.models  # noqa: F401
 
 
 @pytest.fixture
 def client():
-    return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
+    from app.deps import get_current_user
+    from app.models.auth import User, Role, UserRole
+
+    admin = User(id=1, email="admin@local", display_name="Admin", is_active=True)
+    admin_role = Role(id=1, name="admin")
+    ur = UserRole(user_id=1, role_id=1)
+    ur.role = admin_role
+    admin.roles = [ur]
+
+    fastapi_app.dependency_overrides[get_current_user] = lambda: admin
+    try:
+        return AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test")
+    finally:
+        fastapi_app.dependency_overrides.clear()
 
 
 @pytest.fixture
