@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.bootstrap import bootstrap_admin
 from app.config import settings
 from app.db.session import engine
 from app.routers import health, auth
@@ -10,6 +11,7 @@ from app.routers import health, auth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await bootstrap_admin()
     yield
     await engine.dispose()
 
