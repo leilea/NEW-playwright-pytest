@@ -2,6 +2,9 @@
 import asyncio
 import json
 import os
+import subprocess
+import sys
+import tempfile
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,23 +16,29 @@ async def run_playback(case_name: str, steps: list[dict], browser: str, ws_token
     """Execute steps via playwright subprocess. Returns summary dict."""
     sid = uuid.uuid4().hex[:8]
     script = _build_playwright_script(sid, case_name, steps, browser)
-    path = Path(settings.log_dir) / f"playback_{sid}.py"
-    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_root = Path(os.environ.get("TEMP", tempfile.gettempdir()))
+    path = temp_root / f"playback_{sid}.py"
     path.write_text(script, encoding="utf-8")
+    print(f"[playback] script={path}  size={len(script)}", flush=True)
 
     started_at = datetime.now(timezone.utc)
-    proc = await asyncio.create_subprocess_exec(
-        "python", str(path),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-        env={**os.environ, "PLAYBACK_SID": sid},
+    loop = asyncio.get_running_loop()
+    proc = await loop.run_in_executor(
+        None,
+        lambda: subprocess.Popen(
+            [sys.executable, "-m", "pytest", str(path), "-s", "--tb=long", "--headed"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env={**os.environ, "PLAYBACK_SID": sid},
+        ),
     )
-    stdout, stderr = await proc.communicate()
+    stdout, stderr = await loop.run_in_executor(None, proc.communicate)
     finished_at = datetime.now(timezone.utc)
     raw_out = stdout.decode(errors="replace")
     raw_err = stderr.decode(errors="replace")
 
-    path.unlink(missing_ok=True)
+    # keep temp file for debugging
+    # path.unlink(missing_ok=True)
 
     summary = {
         "id": sid,
@@ -39,7 +48,7 @@ async def run_playback(case_name: str, steps: list[dict], browser: str, ws_token
         "started_at": started_at.isoformat(),
         "finished_at": finished_at.isoformat(),
         "rc": proc.returncode,
-        "stdout": raw_out[-2000:],
+        "stdout": raw_out[-3000:],
         "stderr": raw_err[-500:],
     }
 

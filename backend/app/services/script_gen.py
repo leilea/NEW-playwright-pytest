@@ -5,13 +5,14 @@ from typing import Any
 
 def generate_script(case_name: str, steps: list[dict[str, Any]], browser: str = "chromium") -> str:
     """Generate a pytest test function from a case name and step list."""
+    safe_name = _sanitize(case_name)
     lines = [
         "import pytest",
         "from playwright.sync_api import Page, expect",
         "",
         "",
         f"@pytest.mark.{browser}",
-        f"def test_{_sanitize(case_name)}(page: Page):",
+        f"def test_{safe_name}(page: Page):",
         f'    """{case_name}"""',
     ]
     for s in steps:
@@ -26,7 +27,7 @@ def generate_script(case_name: str, steps: list[dict[str, Any]], browser: str = 
 
 
 def _sanitize(name: str) -> str:
-    return "".join(c if c.isalnum() or c in "_-" else "_" for c in name).lower().strip("_") or "test"
+    return "".join(c if c.isascii() and (c.isalnum() or c in "_-") else "_" for c in name).lower().strip("_") or "test"
 
 
 def _quote(v: Any) -> str:
@@ -57,6 +58,10 @@ def _h_expect(p: dict) -> str:
 def _h_check(p: dict) -> str:
     state = p.get("state", "check")
     return f'page.uncheck({_quote(p["selector"])})' if state == "uncheck" else f'page.check({_quote(p["selector"])})'
+
+
+def _h_uncheck(p: dict) -> str:
+    return f'page.uncheck({_quote(p["selector"])})'
 
 
 def _h_select(p: dict) -> str:
@@ -91,6 +96,7 @@ _HANDLERS = {
     "fill": _h_fill,
     "expect": _h_expect,
     "check": _h_check,
+    "uncheck": _h_uncheck,
     "select": _h_select,
     "hover": _h_hover,
     "wait": _h_wait,
