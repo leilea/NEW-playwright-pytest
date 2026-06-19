@@ -16,7 +16,7 @@ def generate_script(case_name: str, steps: list[dict[str, Any]], browser: str = 
     ]
     for s in steps:
         action = s.get("action", "goto")
-        params = s.get("params", {})
+        params = s.get("params") or s
         handler = _HANDLERS.get(action)
         if handler:
             lines.append(f"    {handler(params)}")
