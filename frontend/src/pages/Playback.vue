@@ -1,14 +1,14 @@
 <template>
   <div>
     <h3>Playback</h3>
-    <el-select v-model="selectedCase" placeholder="Select case" @change="loadCase" style="width:320px">
+    <el-select v-model="selectedCase" placeholder="Select case" @change="loadCase" class="playback-select">
       <el-option v-for="c in cases" :key="c.id" :value="c.id" :label="c.name" />
     </el-select>
     <el-button type="primary" @click="run" :disabled="!selectedCase || loading">Run Playback</el-button>
-    <div v-if="result" style="margin-top:12px">
+    <div v-if="result" class="playback-result">
       <el-tag :type="result.status === 'passed' ? 'success' : 'danger'">{{ result.status }}</el-tag>
-      <pre style="background:#1e1e1e;color:#ccc;padding:8px;max-height:300px;overflow:auto">{{ result.stdout }}</pre>
-      <div v-if="result.stderr" style="color:red">{{ result.stderr }}</div>
+      <pre class="playback-stdout">{{ result.stdout }}</pre>
+      <div v-if="result.stderr" class="playback-stderr">{{ result.stderr }}</div>
     </div>
   </div>
 </template>
@@ -34,3 +34,27 @@ async function run() {
   ws.onerror = () => { loading.value = false }
 }
 </script>
+
+<style scoped>
+.playback-select {
+  width: 320px;
+}
+
+.playback-result {
+  margin-top: 12px;
+}
+
+.playback-stdout {
+  background: var(--app-terminal-bg);
+  color: var(--app-terminal-fg);
+  padding: 8px;
+  max-height: 300px;
+  overflow: auto;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.playback-stderr {
+  color: var(--app-terminal-fail);
+}

@@ -5,7 +5,7 @@ import uuid
 
 @pytest.mark.asyncio
 async def test_pg_writer_suite_roundtrip(db_session):
-    from streamlit_app.services.pg_writer import write_suite_to_pg
+    from app.services.pg_writer import write_suite_to_pg
     from app.models.catalog import Suite
     from sqlalchemy import select
 
@@ -23,7 +23,7 @@ async def test_pg_writer_suite_roundtrip(db_session):
 
 @pytest.mark.asyncio
 async def test_pg_writer_suite_idempotent(db_session):
-    from streamlit_app.services.pg_writer import write_suite_to_pg
+    from app.services.pg_writer import write_suite_to_pg
     from app.models.catalog import Suite
     from sqlalchemy import select, func
 

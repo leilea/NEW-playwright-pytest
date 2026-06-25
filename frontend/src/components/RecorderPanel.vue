@@ -1,96 +1,187 @@
 <template>
   <div class="recorder-panel">
-    <div style="margin-bottom:12px">
-      <el-input v-model="url" placeholder="Target URL, e.g. https://dsep-portal-test.minmetals.com.cn/portal/signin" style="width:480px" />
-      <el-button type="primary" @click="start" :loading="running" style="margin-left:8px">
-        {{ running ? 'Recording...' : 'Start Recording' }}
+    <div class="recorder-toolbar">
+      <el-input
+        v-model="url"
+        placeholder="Target URL"
+        class="recorder-url-input"
+        disabled
+      />
+      <el-button type="primary" @click="start" :loading="running">
+        {{ running ? '录制中...' : '开始录制' }}
       </el-button>
-      <el-button v-if="running" @click="stop">Stop</el-button>
+      <el-button v-if="running" type="danger" @click="stop">录制结束</el-button>
     </div>
-    <el-alert v-if="error" :title="error" type="error" closable @close="error = ''" />
-    <div ref="logRef" class="rec-log" style="background:#1e1e1e;color:#ccc;padding:8px;max-height:200px;overflow:auto;font-family:monospace;font-size:12px">
-      <div v-for="(line,i) in log" :key="i">{{ line }}</div>
+
+    <el-alert v-if="error" :title="error" type="error" closable @close="error = ''" class="recorder-alert" />
+
+    <div v-if="recordedSteps.length > 0 || running" class="recorder-steps">
+      <div class="recorder-steps-title">
+        录制步骤 ({{ recordedSteps.length }})
+      </div>
+      <div ref="logRef" class="recorder-log">
+        <div v-if="running" class="recorder-recording">⏺ 录制中...</div>
+        <div v-for="(s,i) in recordedSteps" :key="i" class="recorder-step">
+          #{{ i + 1 }} {{ s.action }}: {{ formatParams(s) }}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="recordedSteps.length > 0 && !running" class="recorder-save-row">
+      <el-input v-model="caseName" placeholder="输入用例名称" class="recorder-case-input" />
+      <el-button type="success" :disabled="!caseName" @click="saveCase">生成用例</el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { api } from '@/api/client'
 import type { Step, ActionName } from '@/types/step'
 
 const emit = defineEmits<{
-  step: [step: Step]
+  'create-case': [payload: { name: string; steps: Step[]; url: string }]
 }>()
 
-const url = ref('https://dsep-portal-test.minmetals.com.cn/portal/signin')
+const url = ref('')
 const running = ref(false)
-const log = ref<string[]>([])
 const error = ref('')
+const recordedSteps = ref<Step[]>([])
+const caseName = ref('')
 const logRef = ref<HTMLElement | null>(null)
 let ws: WebSocket | null = null
 
-watch(log, async () => { await nextTick(); logRef.value?.scrollTo(0, logRef.value.scrollHeight) })
+watch(recordedSteps, async () => {
+  await nextTick()
+  logRef.value?.scrollTo(0, logRef.value.scrollHeight)
+})
+
+function formatParams(step: Step): string {
+  return Object.entries(step)
+    .filter(([k, v]) => k !== 'seq' && k !== 'action' && v !== '' && v !== undefined)
+    .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+    .join(', ')
+}
 
 function start() {
-  if (!url.value) return
+  const targetUrl = url.value
+  if (!targetUrl) return
+  ws?.close()
+  ws = null
   error.value = ''
-  log.value = ['Connecting...']
+  recordedSteps.value = []
+  caseName.value = ''
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
   ws = new WebSocket(`${proto}//${location.host}/ws/rec`)
   ws.onopen = () => {
-    log.value.push('WebSocket connected, starting codegen...')
-    ws!.send(JSON.stringify({ action: 'start', url: url.value }))
+    ws!.send(JSON.stringify({ cmd: 'start', url: targetUrl }))
   }
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data)
-    if (msg.type === 'log') {
-      log.value.push(msg.text)
-      const parsed = parseLine(msg.text)
-      if (parsed) emit('step', { seq: -1, action: parsed.action, params: parsed.params })
-    } else if (msg.type === 'done') {
-      log.value.push('Recording finished.')
+    if (msg.event === 'step') {
+      const s = msg.step as { action: string; params: Record<string, string | number> }
+      const stepObj = { seq: recordedSteps.value.length + 1, action: s.action as ActionName, ...s.params } as Step
+      console.log(`[FE] STEP #${stepObj.seq} ${stepObj.action}:`, JSON.stringify(stepObj))
+      recordedSteps.value = [...recordedSteps.value, stepObj]
+    } else if (msg.event === 'done') {
+      console.log('[FE] DONE (total steps:', recordedSteps.value.length, ')')
+    } else if (msg.event === 'error') {
       running.value = false
-    } else if (msg.type === 'error') {
-      error.value = msg.text
-      running.value = false
+    } else if (msg.event === 'error') {
+      error.value = msg.message || '录制错误'
     }
   }
-  ws.onerror = () => { error.value = 'WebSocket error'; running.value = false }
+  ws.onerror = () => { error.value = 'WebSocket 连接错误'; running.value = false }
   ws.onclose = () => { running.value = false }
   running.value = true
 }
 
-function stop() { if (ws) { ws.send(JSON.stringify({ action: 'stop' })); ws.close() } running.value = false }
-
-const STEP_PATTERNS: [RegExp, ActionName][] = [
-  [/page\.goto\s*\(\s*['"]([^'"]+)['"]/i, 'goto' as ActionName],
-  [/page\.click\s*\(\s*['"]([^'"]+)['"]/i, 'click' as ActionName],
-  [/page\.fill\s*\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]/i, 'fill' as ActionName],
-  [/page\.expect\s*\(\s*['"]([^'"]+)['"]\s*\)\s*\.toHaveText\s*\(\s*['"]([^'"]+)['"]/i, 'expect' as ActionName],
-  [/page\.check\s*\(\s*['"]([^'"]+)['"]/i, 'check' as ActionName],
-  [/page\.uncheck\s*\(\s*['"]([^'"]+)['"]/i, 'check' as ActionName],
-  [/page\.selectOption\s*\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]/i, 'select' as ActionName],
-  [/page\.hover\s*\(\s*['"]([^'"]+)['"]/i, 'hover' as ActionName],
-  [/page\.waitForTimeout\s*\(\s*(\d+)/i, 'wait' as ActionName],
-  [/page\.screenshot\s*\(\s*\{[^}]*path\s*:\s*['"]([^'"]+)['"]/i, 'screenshot' as ActionName],
-  [/page\.evaluate\s*\(\s*`([^`]+)`/i, 'eval' as ActionName],
-]
-
-function parseLine(line: string): Step | null {
-  for (const [re, action] of STEP_PATTERNS) {
-    const m = line.match(re)
-    if (m) {
-      if (action === 'fill') return { seq: -1, action, params: { selector: m[1], value: m[2] } }
-      if (action === 'expect') return { seq: -1, action, params: { selector: m[1], text: m[2] } }
-      if (action === 'select') return { seq: -1, action, params: { selector: m[1], value: m[2] } }
-      if (action === 'wait') return { seq: -1, action, params: { ms: parseInt(m[1]) } }
-      return { seq: -1, action, params: action === 'goto' ? { url: m[1] }
-        : action === 'screenshot' ? { name: m[1] }
-        : action === 'eval' ? { code: m[1] }
-        : action === 'check' ? { selector: m[1], state: 'check' }
-        : { selector: m[1] } }
-    }
+function stop() {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ cmd: 'stop' }))
   }
-  return null
+}
+
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/config/recording-url')
+    url.value = data.url
+  } catch {
+    url.value = 'https://dsep-portal-test.minmetals.com.cn/portal/signin'
+  }
+})
+
+onUnmounted(() => {
+  if (ws) {
+    ws.close()
+    ws = null
+  }
+})
+
+function saveCase() {
+  if (!caseName.value.trim()) return
+  emit('create-case', {
+    name: caseName.value.trim(),
+    steps: recordedSteps.value,
+    url: url.value,
+  })
 }
 </script>
+
+<style scoped>
+.recorder-toolbar {
+  margin-bottom: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.recorder-url-input {
+  width: 480px;
+}
+
+.recorder-alert {
+  margin-bottom: 8px;
+}
+
+.recorder-steps {
+  margin-bottom: 12px;
+}
+
+.recorder-steps-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--el-text-color-primary);
+}
+
+.recorder-log {
+  background: var(--app-terminal-bg);
+  color: var(--app-terminal-fg);
+  padding: 8px;
+  max-height: 220px;
+  overflow: auto;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.recorder-recording {
+  color: var(--el-color-primary-light-3);
+  margin-bottom: 4px;
+}
+
+.recorder-step {
+  color: var(--app-terminal-pass);
+  margin-bottom: 2px;
+}
+
+.recorder-save-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.recorder-case-input {
+  width: 240px;
+}
+</style>

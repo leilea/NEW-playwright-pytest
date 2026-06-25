@@ -1,0 +1,37 @@
+:root {
+  /* ─── 品牌主色 ─── */
+  --el-color-primary: #4A90D9;
+  --el-color-primary-light-1: #5C9BDD;
+  --el-color-primary-light-2: #6EA6E1;
+  --el-color-primary-light-3: #80B1E4;
+  --el-color-primary-light-4: #92BCE8;
+  --el-color-primary-light-5: #A5C8EC;
+  --el-color-primary-light-6: #B7D3F0;
+  --el-color-primary-light-7: #C9DEF4;
+  --el-color-primary-light-8: #DBE9F7;
+  --el-color-primary-light-9: #EDF4FB;
+  --el-color-primary-dark-2: #3B73AE;
+
+  /* ─── 圆角 ─── */
+  --el-border-radius-base: 6px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 20px;
+
+  /* ─── 阴影（更柔和） ─── */
+  --el-box-shadow-light: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.04);
+  --el-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08), 0px 0px 6px rgba(0, 0, 0, 0.02);
+
+  /* ─── 表格 ─── */
+  --el-table-row-height: 48px;
+
+  /* ─── 字体 ─── */
+  --el-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+
+  /* ─── 终端/日志暗色主题 ─── */
+  --app-terminal-bg: #1e1e1e;
+  --app-terminal-fg: #d4d4d4;
+  --app-terminal-pass: #4ec9b0;
+  --app-terminal-fail: #f14c4c;
+  --app-terminal-skip: #cca700;
+  --app-terminal-muted: #666666;
+}

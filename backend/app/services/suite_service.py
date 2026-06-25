@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from app.models.catalog import Suite
 
-async def create_suite(db, *, name, description="", owner_id=None) -> Suite:
-    s = Suite(name=name, description=description, owner_id=owner_id)
+async def create_suite(db, *, name, version="", description="", owner_id=None) -> Suite:
+    s = Suite(name=name, version=version, description=description, owner_id=owner_id)
     db.add(s); await db.flush(); await db.refresh(s)
     return s
 

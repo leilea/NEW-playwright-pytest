@@ -33,8 +33,14 @@ const trendLine = computed(() => ({
     <el-col :span="6"><el-statistic title="24h 运行" :value="sum?.runs_24h ?? 0" /></el-col>
     <el-col :span="6"><el-statistic title="通过率" :value="sum?.pass_rate ?? 0" suffix="%" /></el-col>
   </el-row>
-  <el-row :gutter="16" style="margin-top:16px">
+  <el-row :gutter="16" class="dash-charts">
     <el-col :span="12"><EChart :option="statusPie" /></el-col>
     <el-col :span="12"><EChart :option="trendLine" /></el-col>
   </el-row>
 </template>
+
+<style scoped>
+.dash-charts {
+  margin-top: 16px;
+}
+</style>

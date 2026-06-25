@@ -36,9 +36,13 @@ python backend/scripts/canary_30d.py
 python backend/scripts/check_migration_readiness.py
 ```
 
-## Post-migration cleanup
-1. Remove `streamlit_app/` directory
-2. Remove `.streamlit/` directory
-3. Clean `requirements.txt` (remove streamlit, plotly, pandas if only used by Streamlit)
-4. Archive `Dockerfile.txt` → replaced by `docker-compose.yml` + `backend/Dockerfile`
-5. Delete legacy JSON stores in `logs/` (suites.json, testcases.json — now in PostgreSQL)
+## Cleanup executed (Phase 5 — 2026-06-08)
+1. ✅ Removed `streamlit_app/` directory
+2. ✅ Removed `.streamlit/` directory
+3. ✅ Cleaned `requirements.txt` (streamlit deps already absent)
+4. ✅ Removed `Dockerfile.txt`
+5. ✅ Deleted legacy JSON stores (`logs/suites.json`, `logs/testcases.json`, `logs/playback_history.json`)
+6. ✅ Removed stale scripts (`scripts/patch_streamlit_index.py`, `scripts/verify_spa_routing.py`)
+7. ✅ Updated `AGENTS.md` Streamlit reference → Vue
+8. ✅ Moved `pg_writer.py` to `backend/app/services/`
+9. ✅ Created archive: `docs/superpowers/historical/streamlit-app-deprecated.md`

@@ -13,36 +13,63 @@
           </vxe-select>
         </template>
       </vxe-column>
-      <vxe-column title="Parameters" min-width="300">
+      <vxe-column title="Parameters" min-width="350">
         <template #default="{ row }">
           <template v-for="f in stepSchema(row.action).params" :key="f.key">
-            <label style="margin-right:4px">{{ f.label }}</label>
-            <vxe-input
-              v-if="f.type === 'text'"
-              v-model="row.params[f.key]"
-              :placeholder="f.placeholder || ''"
-              style="width:140px;margin-right:8px"
-            />
-            <vxe-input
-              v-else-if="f.type === 'number'"
-              v-model.number="row.params[f.key]"
-              type="number"
-              style="width:100px;margin-right:8px"
-            />
-            <vxe-select
-              v-else-if="f.type === 'select'"
-              v-model="row.params[f.key]"
-              style="width:120px;margin-right:8px"
-            >
-              <vxe-option v-for="o in f.opts" :key="o" :value="o" :label="o" />
-            </vxe-select>
+            <template v-if="f.key === 'selector'">
+              <vxe-input
+                :modelValue="selectorToLocator(String(row.selector || '')).replace(/page\./g, '')"
+                @update:modelValue="(v: any) => onLocatorUpdate(row, String(v ?? ''))"
+                placeholder="locator"
+                style="width:720px;margin-right:6px"
+              />
+            </template>
+            <template v-else-if="f.key === 'value' && row.selector">
+              <span style="margin:0 2px;color:var(--el-border-color);font-size:14px">|</span>
+              <vxe-input v-model="row.value" style="width:280px" />
+            </template>
+            <template v-else-if="f.key === 'url'">
+              <vxe-input v-model="row.url" placeholder="https://..." style="width:720px;margin-right:8px" />
+            </template>
+            <template v-else>
+              <label style="margin-right:4px">{{ f.label }}</label>
+              <vxe-input
+                v-if="f.type === 'text'"
+                 v-model="row[f.key]"
+                :placeholder="f.placeholder || ''"
+                style="width:140px;margin-right:8px"
+              />
+              <vxe-input
+                v-else-if="f.type === 'number'"
+                 v-model.number="row[f.key]"
+                type="number"
+                style="width:100px;margin-right:8px"
+              />
+              <vxe-select
+                v-else-if="f.type === 'select'"
+                 v-model="row[f.key]"
+                style="width:120px;margin-right:8px"
+              >
+                <vxe-option v-for="o in f.opts" :key="o" :value="o" :label="o" />
+              </vxe-select>
+            </template>
           </template>
         </template>
       </vxe-column>
-      <vxe-column title="Ops" width="100">
-        <template #default="{ row, $rowIndex }">
+      <vxe-column title="Notes" width="120">
+        <template #default="{ row }">
+          <vxe-input v-model="row.note" placeholder="标识/说明" style="width:100%" />
+        </template>
+      </vxe-column>
+      <vxe-column title="Move" width="70">
+        <template #default="{ $rowIndex }">
           <vxe-button size="mini" icon="vxe-icon-arrow-up" :disabled="$rowIndex === 0" @click="moveUp($rowIndex)" />
           <vxe-button size="mini" icon="vxe-icon-arrow-down" :disabled="$rowIndex === steps.length - 1" @click="moveDown($rowIndex)" />
+        </template>
+      </vxe-column>
+      <vxe-column title="Ops" width="70">
+        <template #default="{ $rowIndex }">
+          <vxe-button size="mini" icon="vxe-icon-copy" @click="copyStep($rowIndex)" />
           <vxe-button size="mini" icon="vxe-icon-delete" status="danger" @click="removeStep($rowIndex)" />
         </template>
       </vxe-column>
@@ -54,6 +81,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { type Step, type ActionName, ACTION_NAMES, STEP_SCHEMAS } from '../types/step'
+import { selectorToLocator, locatorToSelector } from '../utils/locator'
 
 const props = defineProps<{ modelValue: Step[] }>()
 const emit = defineEmits<{ 'update:modelValue': [val: Step[]] }>()
@@ -65,7 +93,12 @@ const steps = computed({
   set: (val) => emit('update:modelValue', val),
 })
 
-function emptyParams(action: ActionName): Record<string, string | number> {
+function onLocatorUpdate(row: Step, loc: string) {
+  const expr = loc.startsWith('page.') ? loc : 'page.' + loc
+  row.selector = locatorToSelector(expr)
+}
+
+function defaultParams(action: ActionName): Record<string, string | number> {
   const p: Record<string, string | number> = {}
   for (const f of STEP_SCHEMAS[action].params) p[f.key] = ''
   return p
@@ -73,7 +106,15 @@ function emptyParams(action: ActionName): Record<string, string | number> {
 
 function addStep() {
   const seq = steps.value.length + 1
-  steps.value = [...steps.value, { seq, action: 'goto' as ActionName, params: { url: '' } }]
+  steps.value = [...steps.value, { seq, action: 'goto' as ActionName, url: '' }]
+}
+
+function copyStep(idx: number) {
+  const arr = [...steps.value]
+  const clone = JSON.parse(JSON.stringify(arr[idx]))
+  arr.splice(idx + 1, 0, clone)
+  arr.forEach((s, i) => s.seq = i + 1)
+  steps.value = arr
 }
 
 function removeStep(idx: number) {
@@ -100,8 +141,13 @@ function moveDown(idx: number) {
 }
 
 function changeAction(row: Step, newAction: string) {
+  const oldAction = row.action
   row.action = newAction as ActionName
-  row.params = emptyParams(newAction as ActionName)
+  if (newAction !== oldAction) {
+    const defs = defaultParams(newAction as ActionName)
+    Object.keys(row).forEach(k => { if (k !== 'seq' && k !== 'action') delete (row as any)[k] })
+    Object.assign(row, defs)
+  }
 }
 
 function stepSchema(action: ActionName) {

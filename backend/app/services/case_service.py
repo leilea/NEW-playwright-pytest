@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from app.models.catalog import Case
 
-async def create_case(db, *, suite_id, name, tags=None, steps=None, owner_id=None) -> Case:
-    c = Case(suite_id=suite_id, name=name, tags=tags or [], steps=steps or [], owner_id=owner_id)
+async def create_case(db, *, suite_id, name, tags=None, steps=None, parameters=None, owner_id=None) -> Case:
+    c = Case(suite_id=suite_id, name=name, tags=tags or [], steps=steps or [], parameters=parameters or [], owner_id=owner_id)
     db.add(c); await db.flush(); await db.refresh(c)
     return c
 
@@ -23,10 +23,12 @@ async def add_step(db, *, case_id: int, step: dict) -> Case:
     await db.flush(); await db.refresh(c)
     return c
 
-async def update_case_steps(db, *, case_id: int, steps: list[dict]) -> Case:
+async def update_case_steps(db, *, case_id: int, steps: list[dict], parameters: list[dict] | None = None) -> Case:
     c = await get_case(db, case_id)
     assert c, "case not found"
     c.steps = steps
+    if parameters is not None:
+        c.parameters = parameters
     await db.flush(); await db.refresh(c)
     return c
 

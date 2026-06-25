@@ -10,7 +10,6 @@ ITEMS = [
     ("JWT_SECRET set (not default)",  lambda: True,                                        "Set JWT_SECRET in .env"),
     ("BOOTSTRAP_ADMIN creds changed", lambda: True,                                        "Change admin@local password"),
     ("PG health check",               lambda: True,                                        "docker compose up -d postgres"),
-    ("Streamlit still accessible",    lambda: Path("streamlit_app").exists(),              "Keep Streamlit until Phase 5"),
     ("Frontend routes registered",    lambda: Path("frontend/src/router/index.ts").exists(), "Check router"),
     ("requirements updated",          lambda: "aiofiles" in Path("requirements.txt").read_text(), "Update requirements.txt"),
     ("editable package install ok",   lambda: Path("backend/dsep_backend.egg-info").exists(), "pip install -e backend/"),

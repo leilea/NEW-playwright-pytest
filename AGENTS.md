@@ -58,7 +58,7 @@
 - OpenSpec 已归档变更：`openspec/changes/archive/`
 - Superpowers 技能：`.claude/skills/<name>/SKILL.md`
 - 项目级测试：`tests/`、`page_factory/`
-- Streamlit 应用：`streamlit_app/`
+- Vue 前端：`frontend/src/`
 
 ## 自动加载验证
 

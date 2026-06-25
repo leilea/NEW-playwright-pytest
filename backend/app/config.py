@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     bootstrap_admin_password: str = "admin123"
     log_dir: str = "logs"
     allure_results_dir: str = "allure-results"
+    recorder_headless: bool = False
+    recorder_inspector: bool = False
+    recorder_browser: str = "chromium"
+    breadcrumb_enabled: bool = True
 
     @property
     def cors_list(self) -> list[str]:

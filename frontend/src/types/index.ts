@@ -21,12 +21,19 @@ export interface Suite {
   updated_at: string
 }
 
+export interface Parameter {
+  key: string
+  value: string
+  description: string
+}
+
 export interface Case {
   id: number
   suite_id: number
   name: string
   tags: string[]
   steps: import('./step').Step[]
+  parameters: Parameter[]
   owner_id: number | null
   created_at: string
   updated_at: string

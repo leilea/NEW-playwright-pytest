@@ -26,16 +26,16 @@ async def run_playback(case_name: str, steps: list[dict], browser: str, ws_token
     proc = await loop.run_in_executor(
         None,
         lambda: subprocess.Popen(
-            [sys.executable, "-m", "pytest", str(path), "-s", "--tb=long", "--headed"],
+            [sys.executable, "-X", "utf8", "-m", "pytest", str(path), "-s", "--tb=long", "--headed"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            env={**os.environ, "PLAYBACK_SID": sid},
+            env={**os.environ, "PLAYBACK_SID": sid, "PYTHONUTF8": "1"},
         ),
     )
     stdout, stderr = await loop.run_in_executor(None, proc.communicate)
     finished_at = datetime.now(timezone.utc)
-    raw_out = stdout.decode(errors="replace")
-    raw_err = stderr.decode(errors="replace")
+    raw_out = stdout.decode("utf-8", errors="replace")
+    raw_err = stderr.decode("utf-8", errors="replace")
 
     # keep temp file for debugging
     # path.unlink(missing_ok=True)
@@ -60,7 +60,13 @@ async def run_playback(case_name: str, steps: list[dict], browser: str, ws_token
 
 def _build_playwright_script(sid: str, name: str, steps: list[dict], browser: str) -> str:
     from app.services.script_gen import generate_script
-    return generate_script(f"{name}_{sid}", steps, browser)
+    return generate_script(
+        f"{name}_{sid}",
+        steps,
+        browser,
+        breadcrumb=settings.breadcrumb_enabled,
+        breadcrumb_id=name,
+    )
 
 
 def _find_screenshots(sid: str, stdout: str, stderr: str) -> list[str]:

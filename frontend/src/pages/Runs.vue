@@ -2,7 +2,7 @@
   <div class="runs-page">
     <h2>Test Runs</h2>
 
-    <el-card style="margin-bottom:16px">
+    <el-card class="run-form-card">
       <el-form :inline="true">
         <el-form-item label="Suite">
           <el-select v-model="suiteId" placeholder="Select suite" clearable @change="loadCases">
@@ -30,13 +30,13 @@
       </el-form>
     </el-card>
 
-    <el-card v-if="activeRunId">
+    <el-card v-if="activeRunId" class="run-log-card">
       <template #header>Run #{{ activeRunId }}</template>
       <LogStream :raw="logBuffer" />
-      <el-button v-if="runFinished" type="success" style="margin-top:8px" @click="viewAllure">View Allure Report</el-button>
+      <el-button v-if="runFinished" type="success" class="allure-btn" @click="viewAllure">View Allure Report</el-button>
     </el-card>
 
-    <el-card style="margin-top:16px">
+    <el-card class="run-history-card">
       <template #header>Run History</template>
       <el-table :data="runs" max-height="40vh">
         <el-table-column prop="id" label="ID" width="70" />
@@ -136,3 +136,21 @@ function viewAllure() {
 loadSuites()
 loadRuns()
 </script>
+
+<style scoped>
+.run-form-card {
+  margin-bottom: 16px;
+}
+
+.run-log-card {
+  margin-bottom: 16px;
+}
+
+.allure-btn {
+  margin-top: 8px;
+}
+
+.run-history-card {
+  margin-top: 16px;
+}
+</style>

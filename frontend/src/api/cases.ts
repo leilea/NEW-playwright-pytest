@@ -27,3 +27,8 @@ export async function update(id: number, payload: Partial<Case>): Promise<Case> 
 export async function remove(id: number): Promise<void> {
   await api.delete(`/cases/${id}`)
 }
+
+export async function getScript(id: number, browser = 'chromium'): Promise<string> {
+  const { data } = await api.get(`/cases/${id}/script`, { params: { browser } })
+  return data.script
+}

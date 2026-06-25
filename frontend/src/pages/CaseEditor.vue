@@ -14,16 +14,19 @@
       </div>
     </div>
 
-    <el-form :model="form" label-width="60px" style="margin-bottom:16px">
-      <el-form-item label="名称">
-        <el-input v-model="form.name" placeholder="用例名称" style="width:320px" />
-      </el-form-item>
-      <el-form-item v-if="isNew" label="套件">
-        <el-select v-model="form.suite_id" placeholder="选择套件" style="width:320px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <span style="color:var(--el-text-color-regular);font-size:14px">所属系统：</span>
+      <template v-if="!isNew">
+        <span style="font-weight:500">{{ suiteName || '—' }}</span>
+      </template>
+      <template v-if="isNew">
+        <el-select v-model="form.suite_id" placeholder="选择系统" style="width:320px">
           <el-option v-for="s in suites" :key="s.id" :label="s.name" :value="s.id" />
         </el-select>
-      </el-form-item>
-    </el-form>
+      </template>
+    </div>
+
+    <ParameterConfig v-model="form.parameters" />
 
     <el-tabs v-model="activeTab" style="margin-top:8px">
       <el-tab-pane label="操作步骤" name="steps">
@@ -83,7 +86,9 @@ import { ElMessage } from 'element-plus'
 import { list as listSuites } from '@/api/suites'
 import * as casesApi from '@/api/cases'
 import StepEditor from '@/components/StepEditor.vue'
+import ParameterConfig from '@/components/ParameterConfig.vue'
 import type { Step } from '@/types/step'
+import type { Parameter } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -99,6 +104,7 @@ const form = ref({
   name: '',
   suite_id: 0,
   steps: [] as Step[],
+  parameters: [] as Parameter[],
 })
 
 const activeTab = ref('steps')
@@ -124,6 +130,7 @@ onMounted(async () => {
         name: c.name,
         suite_id: c.suite_id,
         steps: (c.steps || []) as Step[],
+        parameters: (c.parameters || []) as Parameter[],
       }
       loadScript(caseId)
     }
@@ -147,10 +154,36 @@ async function loadScript(caseId: number) {
   scriptLoading.value = false
 }
 
+function replaceParams(text: string): string {
+  if (!text) return text
+  for (const p of form.value.parameters) {
+    if (!p.key) continue
+    text = text.replace(new RegExp('\\{\\{' + escapeRegExp(p.key) + '\\}\\}', 'g'), p.value)
+    const wordBoundary = '(?<![\\w])' + escapeRegExp(p.key) + '(?![\\w])'
+    text = text.replace(new RegExp(wordBoundary, 'g'), p.value)
+  }
+  const now = new Date()
+  text = text.replace(/\{\{random:(\d+)\}\}/g, (_, n) => String(Math.random()).slice(2, 2 + parseInt(n)))
+  text = text.replace(/\{\{randomStr:(\d+)\}\}/g, (_, n) => Math.random().toString(36).slice(2, 2 + parseInt(n)))
+  text = text.replace(/\{\{date\}\}/g, now.toISOString().slice(0, 10))
+  text = text.replace(/\{\{time\}\}/g, now.toTimeString().slice(0, 5))
+  text = text.replace(/\{\{datetime\}\}/g, now.toISOString().replace('T', ' ').slice(0, 16))
+  text = text.replace(/\{\{timestamp\}\}/g, String(Date.now()))
+  text = text.replace(/\{\{timeAdd:h\+(\d+)\}\}/g, (_, n) => new Date(now.getTime() + parseInt(n) * 3600000).toTimeString().slice(0, 5))
+  text = text.replace(/\{\{timeSub:h\+(\d+)\}\}/g, (_, n) => new Date(now.getTime() - parseInt(n) * 3600000).toTimeString().slice(0, 5))
+  text = text.replace(/\{\{dateAdd:d\+(\d+)\}\}/g, (_, n) => new Date(now.getTime() + parseInt(n) * 86400000).toISOString().slice(0, 10))
+  text = text.replace(/\{\{dateSub:d\+(\d+)\}\}/g, (_, n) => new Date(now.getTime() - parseInt(n) * 86400000).toISOString().slice(0, 10))
+  return text
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 async function save() {
   saving.value = true
   try {
-    const payload = { name: form.value.name, suite_id: form.value.suite_id, steps: form.value.steps }
+    const payload = { name: form.value.name, suite_id: form.value.suite_id, steps: form.value.steps, parameters: form.value.parameters }
     if (isNew.value) {
       await casesApi.create(payload)
       ElMessage.success('用例已创建')
@@ -158,6 +191,7 @@ async function save() {
     } else {
       await casesApi.update(Number(id.value), payload)
       ElMessage.success('已保存')
+      loadScript(Number(id.value))
     }
   } catch (err: unknown) {
     ElMessage.error(`保存失败: ${err}`)
@@ -173,10 +207,17 @@ function playback() {
   const ws = new WebSocket(`${proto}//${location.host}/ws/playback`)
 
   ws.onopen = () => {
+    const resolvedSteps = form.value.steps.map((s: Step) => {
+      const resolved: Record<string, unknown> = {}
+      for (const [k, v] of Object.entries(s)) {
+        resolved[k] = typeof v === 'string' ? replaceParams(v) : v
+      }
+      return resolved
+    })
     ws.send(JSON.stringify({
       action: 'start',
       case_name: form.value.name,
-      steps: form.value.steps,
+      steps: resolvedSteps,
       browser: 'chromium',
     }))
   }

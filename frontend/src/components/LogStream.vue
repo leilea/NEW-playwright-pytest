@@ -45,10 +45,10 @@ function onUserScroll() {
 </script>
 
 <style scoped>
-.log-stream { background:#1e1e1e; color:#d4d4d4; padding:12px; max-height:60vh; overflow:auto; font:12px/1.5 Consolas,monospace; border-radius:4px }
+.log-stream { background:var(--app-terminal-bg); color:var(--app-terminal-fg); padding:12px; max-height:60vh; overflow:auto; font:12px/1.5 Consolas,monospace; border-radius:4px }
 .log-line { white-space:pre-wrap; word-break:break-all; min-height:18px }
-.log-pass { color:#4ec9b0 }
-.log-fail { color:#f14c4c }
-.log-skip { color:#cca700 }
-.log-empty { color:#666 }
+.log-pass { color:var(--app-terminal-pass) }
+.log-fail { color:var(--app-terminal-fail) }
+.log-skip { color:var(--app-terminal-skip) }
+.log-empty { color:var(--app-terminal-muted) }
 </style>

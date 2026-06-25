@@ -13,7 +13,8 @@ export const useAuthStore = defineStore('auth', () => {
     catch { user.value = null }
   }
   async function login(email: string, password: string) {
-    await api.login(email, password)
+    const result = await api.login(email, password)
+    token.value = result.access_token
     await refresh()
   }
   async function logout() {
