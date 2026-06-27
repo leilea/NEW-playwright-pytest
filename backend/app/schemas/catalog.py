@@ -13,6 +13,7 @@ class SuiteOut(BaseModel):
     description: str
     owner_id: int | None
     created_at: datetime
+    case_count: int = 0
     model_config = {"from_attributes": True}
 
 class Step(BaseModel):
@@ -40,6 +41,7 @@ class Parameter(BaseModel):
 class CaseIn(BaseModel):
     suite_id: int
     name: str = Field(min_length=1, max_length=160)
+    version: str = ""
     tags: list[str] = []
     steps: list[Step] = []
     parameters: list[Parameter] = []
@@ -48,6 +50,7 @@ class CaseOut(BaseModel):
     id: int
     suite_id: int
     name: str
+    version: str
     tags: list[str]
     steps: list[Step]
     parameters: list[Parameter] = []

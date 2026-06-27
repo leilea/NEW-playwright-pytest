@@ -24,6 +24,11 @@ export async function update(id: number, payload: Partial<Case>): Promise<Case> 
   return data
 }
 
+export async function patch(id: number, payload: Partial<Case>): Promise<Case> {
+  const { data } = await api.patch(`/cases/${id}`, payload)
+  return data
+}
+
 export async function remove(id: number): Promise<void> {
   await api.delete(`/cases/${id}`)
 }

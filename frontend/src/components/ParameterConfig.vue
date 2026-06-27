@@ -3,6 +3,7 @@
     <div class="parameter-config-header">
       <span class="parameter-config-title">参数配置</span>
       <span class="parameter-config-hint" v-text="'参数名输入格式示例: username 或 {{username}}'"></span>
+      <el-button class="param-add-btn" type="primary" :icon="Plus" @click="addParam">添加参数</el-button>
     </div>
 
     <div v-if="params.length === 0" class="parameter-config-empty">
@@ -32,7 +33,7 @@
             :visible="dropdownIndex === index"
             placement="bottom-start"
             :width="240"
-            trigger="click"
+            trigger="manual"
             @show="dropdownIndex = index"
             @hide="dropdownIndex = null"
           >
@@ -40,12 +41,12 @@
               <el-button
                 class="param-value-type-btn"
                 size="small"
-                @click="dropdownIndex = dropdownIndex === index ? null : index"
+                @click.stop="dropdownIndex = dropdownIndex === index ? null : index"
               >
                 <el-icon><MagicStick /></el-icon>
               </el-button>
             </template>
-            <div class="value-type-list">
+            <div class="value-type-list" @click.stop>
               <div
                 v-for="opt in valueTypeOptions"
                 :key="opt.value"
@@ -78,10 +79,6 @@
       </div>
     </div>
 
-    <el-button class="param-add-btn" type="primary" :icon="Plus" @click="addParam">
-      添加参数
-    </el-button>
-
     <el-dialog
       v-model="showOffsetDialog"
       title="设置偏移量"
@@ -108,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Calendar, Clock, Key, Edit, Delete, Plus, MagicStick } from '@element-plus/icons-vue'
 import type { Parameter } from '@/types'
 
@@ -120,7 +117,10 @@ const emit = defineEmits<{
   'update:modelValue': [value: Parameter[]]
 }>()
 
-const params = ref<Parameter[]>([...props.modelValue])
+const params = computed<Parameter[]>({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
 const dropdownIndex = ref<number | null>(null)
 const showOffsetDialog = ref(false)
 const offsetValue = ref(0)
@@ -141,23 +141,32 @@ const valueTypeOptions = [
   { label: '日期-天',        value: 'dateSub',              icon: Calendar, description: '当前日期-N天',         hasOffset: true, offsetUnit: '天' },
 ]
 
+function closeAllPopovers() {
+  dropdownIndex.value = null
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeAllPopovers)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeAllPopovers)
+})
+
 function addParam() {
-  params.value.push({ key: '', value: '', description: '' })
-  emitUpdate()
+  params.value = [...params.value, { key: '', value: '', description: '' }]
 }
 
 function updateParam(index: number, field: keyof Parameter, value: string) {
-  params.value[index] = { ...params.value[index], [field]: value }
-  emitUpdate()
+  const newParams = [...params.value]
+  newParams[index] = { ...newParams[index], [field]: value }
+  params.value = newParams
 }
 
 function deleteParam(index: number) {
-  params.value.splice(index, 1)
-  emitUpdate()
-}
-
-function emitUpdate() {
-  emit('update:modelValue', [...params.value])
+  const newParams = [...params.value]
+  newParams.splice(index, 1)
+  params.value = newParams
 }
 
 function insertValueType(index: number, opt: typeof valueTypeOptions[number]) {
@@ -261,7 +270,7 @@ function confirmOffset() {
 }
 
 .param-add-btn {
-  margin-top: 4px;
+  margin-left: auto;
 }
 
 .value-type-list {

@@ -36,7 +36,7 @@ const create = useMutation({
   </el-form>
   <el-table :data="cases || []" v-loading="isLoading" stripe>
     <el-table-column prop="id" label="ID" width="60" />
-    <el-table-column prop="name" label="名称" />
+    <el-table-column prop="name" label="用例名称" align="left" />
     <el-table-column prop="tags" label="标签">
       <template #default="{ row }">{{ row.tags?.join(', ') }}</template>
     </el-table-column>

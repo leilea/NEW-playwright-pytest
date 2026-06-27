@@ -32,6 +32,15 @@ async def update_case_steps(db, *, case_id: int, steps: list[dict], parameters: 
     await db.flush(); await db.refresh(c)
     return c
 
+
+async def update_case_info(db, *, case_id: int, name: str, version: str) -> Case:
+    c = await get_case(db, case_id)
+    assert c, "case not found"
+    c.name = name
+    c.version = version
+    await db.flush(); await db.refresh(c)
+    return c
+
 async def delete_case(db, case_id: int) -> bool:
     c = await get_case(db, case_id)
     if not c: return False

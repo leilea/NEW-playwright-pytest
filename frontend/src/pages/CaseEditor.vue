@@ -1,17 +1,8 @@
 <template>
   <div class="case-editor">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <h2 style="margin:0">{{ isNew ? '新建用例' : `用例: ${form.name || '加载中...'}` }}</h2>
-        <el-tag v-if="!isNew && suiteName" size="small" type="info">{{ suiteName }}</el-tag>
-      </div>
-      <div style="display:flex;gap:8px">
-        <el-button @click="back">返回</el-button>
-        <el-button v-if="!isNew" type="success" @click="playback" :loading="playing">
-          {{ playing ? '回放中...' : '回放' }}
-        </el-button>
-        <el-button type="primary" @click="save" :loading="saving">保存</el-button>
-      </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <h2 style="margin:0">{{ isNew ? '新建用例' : `用例: ${form.name || '加载中...'}` }}</h2>
+      <el-tag v-if="!isNew && suiteName" size="small" type="info">{{ suiteName }}</el-tag>
     </div>
 
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
@@ -28,9 +19,10 @@
 
     <ParameterConfig v-model="form.parameters" />
 
-    <el-tabs v-model="activeTab" style="margin-top:8px">
+    <div style="position:relative;margin-top:8px">
+      <el-tabs v-model="activeTab">
       <el-tab-pane label="操作步骤" name="steps">
-        <StepEditor v-model="form.steps" />
+        <StepEditor ref="stepEditorRef" v-model="form.steps" />
       </el-tab-pane>
 
       <el-tab-pane label="生成脚本" name="script">
@@ -76,6 +68,14 @@
         <el-empty v-else description="暂无回放结果，点击「回放」按钮执行" />
       </el-tab-pane>
     </el-tabs>
+      <div style="position:absolute;top:2px;right:0;display:flex;gap:8px">
+        <el-button @click="back">返回</el-button>
+        <el-button v-if="!isNew" type="success" @click="playback" :loading="playing">
+          {{ playing ? '回放中...' : '回放' }}
+        </el-button>
+        <el-button type="primary" @click="save" :loading="saving">保存</el-button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -92,6 +92,8 @@ import type { Parameter } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
+
+const stepEditorRef = ref<InstanceType<typeof StepEditor> | null>(null)
 
 const id = computed(() => route.params.id as string)
 const isNew = computed(() => id.value === 'new')
@@ -181,6 +183,7 @@ function escapeRegExp(s: string): string {
 }
 
 async function save() {
+  stepEditorRef.value?.flushEditCache()
   saving.value = true
   try {
     const payload = { name: form.value.name, suite_id: form.value.suite_id, steps: form.value.steps, parameters: form.value.parameters }

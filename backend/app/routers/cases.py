@@ -43,6 +43,18 @@ async def update(case_id: int, body: CaseIn, db=Depends(get_db), user=Depends(ge
     )
 
 
+@router.patch("/{case_id}", response_model=CaseOut)
+async def patch_case(case_id: int, body: dict, db=Depends(get_db), user=Depends(get_current_user)):
+    c = await case_service.get_case(db, case_id)
+    if not c:
+        raise HTTPException(404, "not found")
+    return await case_service.update_case_info(
+        db, case_id=case_id,
+        name=body["name"],
+        version=body.get("version", ""),
+    )
+
+
 @router.delete("/{case_id}", status_code=204)
 async def delete(case_id: int, db=Depends(get_db), user=Depends(get_current_user)):
     ok = await case_service.delete_case(db, case_id)

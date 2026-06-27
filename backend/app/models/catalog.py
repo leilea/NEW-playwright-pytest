@@ -22,6 +22,7 @@ class Case(Base):
     legacy_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True, index=True)
     suite_id: Mapped[int] = mapped_column(ForeignKey("catalog.suites.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(160), index=True)
+    version: Mapped[str] = mapped_column(String(32), default="")
     tags: Mapped[list] = mapped_column(JSON, default=list)
     steps: Mapped[list] = mapped_column(JSON, default=list)
     parameters: Mapped[list] = mapped_column(JSON, default=list)

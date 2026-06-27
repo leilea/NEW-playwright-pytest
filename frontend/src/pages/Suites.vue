@@ -98,15 +98,16 @@ async function onDelete(id: number) {
 <template>
   <div class="suites-page">
     <div class="page-header">
-      <h2>系统用例</h2>
+      <h2>用例仓库</h2>
       <el-button type="primary" @click="openDialog">新增</el-button>
     </div>
 
-    <el-table :data="data || []" v-loading="isLoading" stripe style="width:100%">
+    <el-table :data="data || []" v-loading="isLoading" stripe border style="width:100%">
       <el-table-column type="index" label="序号" width="60" align="center" />
       <el-table-column prop="name" label="系统名称" min-width="180" show-overflow-tooltip align="center" />
       <el-table-column prop="version" label="版本号" min-width="100" align="center" />
       <el-table-column prop="description" label="描述" min-width="120" show-overflow-tooltip align="center" />
+      <el-table-column prop="case_count" label="用例数量" width="100" align="center" />
       <el-table-column label="系统创建日期" min-width="160" align="center">
         <template #default="{ row }">
           {{ row.created_at ? new Date(row.created_at).toLocaleString('zh-CN') : '' }}

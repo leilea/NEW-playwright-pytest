@@ -31,6 +31,7 @@ export interface Case {
   id: number
   suite_id: number
   name: string
+  version: string
   tags: string[]
   steps: import('./step').Step[]
   parameters: Parameter[]

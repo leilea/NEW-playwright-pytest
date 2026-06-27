@@ -18,8 +18,9 @@
           <template v-for="f in stepSchema(row.action).params" :key="f.key">
             <template v-if="f.key === 'selector'">
               <vxe-input
-                :modelValue="selectorToLocator(String(row.selector || '')).replace(/page\./g, '')"
-                @update:modelValue="(v: any) => onLocatorUpdate(row, String(v ?? ''))"
+                :modelValue="editCache.get(row) || ''"
+                @update:modelValue="(v: any) => editCache.set(row, String(v ?? ''))"
+                @blur="onLocatorBlur(row)"
                 placeholder="locator"
                 style="width:720px;margin-right:6px"
               />
@@ -79,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { type Step, type ActionName, ACTION_NAMES, STEP_SCHEMAS } from '../types/step'
 import { selectorToLocator, locatorToSelector } from '../utils/locator'
 
@@ -93,10 +94,33 @@ const steps = computed({
   set: (val) => emit('update:modelValue', val),
 })
 
-function onLocatorUpdate(row: Step, loc: string) {
-  const expr = loc.startsWith('page.') ? loc : 'page.' + loc
+const editCache = reactive(new Map<Step, string>())
+
+watch(() => props.modelValue, (steps) => {
+  editCache.clear()
+  for (const s of steps) {
+    editCache.set(s, selectorToLocator(String(s.selector || '')).replace(/page\./g, ''))
+  }
+}, { immediate: true, deep: true })
+
+function onLocatorBlur(row: Step) {
+  const val = editCache.get(row) || ''
+  if (!val) return
+  const expr = val.startsWith('page.') ? val : 'page.' + val
   row.selector = locatorToSelector(expr)
+  editCache.set(row, selectorToLocator(String(row.selector)).replace(/page\./g, ''))
 }
+
+function flushEditCache() {
+  const entries = Array.from(editCache.entries())
+  for (const [row, val] of entries) {
+    const expr = val.startsWith('page.') ? val : 'page.' + val
+    row.selector = locatorToSelector(expr)
+  }
+  editCache.clear()
+}
+
+defineExpose({ flushEditCache })
 
 function defaultParams(action: ActionName): Record<string, string | number> {
   const p: Record<string, string | number> = {}

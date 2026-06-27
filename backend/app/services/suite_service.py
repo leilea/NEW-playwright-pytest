@@ -1,5 +1,5 @@
-from sqlalchemy import select
-from app.models.catalog import Suite
+from sqlalchemy import select, func
+from app.models.catalog import Suite, Case
 
 async def create_suite(db, *, name, version="", description="", owner_id=None) -> Suite:
     s = Suite(name=name, version=version, description=description, owner_id=owner_id)
@@ -7,8 +7,20 @@ async def create_suite(db, *, name, version="", description="", owner_id=None) -
     return s
 
 async def list_suites(db) -> list[Suite]:
-    res = await db.execute(select(Suite).order_by(Suite.id))
-    return list(res.scalars())
+    case_count_subq = (
+        select(Case.suite_id, func.count(Case.id).label("cnt"))
+        .group_by(Case.suite_id)
+        .subquery()
+    )
+    res = await db.execute(
+        select(Suite, case_count_subq.c.cnt)
+        .outerjoin(case_count_subq, Suite.id == case_count_subq.c.suite_id)
+        .order_by(Suite.id)
+    )
+    rows = res.all()
+    for suite, cnt in rows:
+        suite.case_count = cnt or 0
+    return [suite for suite, _ in rows]
 
 async def get_suite(db, suite_id: int) -> Suite | None:
     return (await db.execute(select(Suite).where(Suite.id == suite_id))).scalar_one_or_none()
