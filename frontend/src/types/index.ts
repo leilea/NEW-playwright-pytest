@@ -68,6 +68,16 @@ export interface Schedule {
   created_at: string
 }
 
+export interface PlaybackErrorInfo {
+  type: 'timeout' | 'strict_violation' | 'load_state_timeout' | 'assertion' | 'unknown'
+  locator: string
+  detail: string
+  timeout_ms?: number
+  elements?: string[]
+  expected_state?: string
+  step_index?: number
+}
+
 export interface LoginRequest {
   email: string
   password: string

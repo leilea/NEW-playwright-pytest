@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     recorder_headless: bool = False
     recorder_inspector: bool = False
     recorder_browser: str = "chromium"
-    breadcrumb_enabled: bool = True
 
     @property
     def cors_list(self) -> list[str]:

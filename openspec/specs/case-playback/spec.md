@@ -39,24 +39,6 @@
 - **当** 用例包含 action 为 `uncheck` 的步骤
 - **那么** 生成的 pytest 脚本中该步骤对应 `page.uncheck("selector")` 代码
 
-### 需求:回放支持自愈
-
-系统执行回放时，必须支持可选的 pytest-breadcrumb 自愈机制。
-
-#### 场景:启用 breadcrumb 回放
-- **当** breadcrumb_enabled 配置为 true
-- **那么** 生成的脚本使用 `crumb()` 包装 page 对象
-- **那么** 首次回放时各元素指纹存入 `.breadcrumb.db`
-
-#### 场景:关闭 breadcrumb
-- **当** breadcrumb_enabled 配置为 false 或环境变量 `BREADCRUMB_ENABLED=false`
-- **那么** 生成的脚本不包含 breadcrumb 包装，使用原始 Playwright page 对象
-
-#### 场景:breadcrumb 自愈
-- **当** 页面改版导致原始选择器失效
-- **那么** pytest-breadcrumb 扫描全页匹配指纹
-- **那么** 匹配成功后回放继续、不中断
-
 ### 需求:跨平台回放执行
 回放功能必须在 Windows、macOS 和 Linux 平台上均正常工作。`asyncio.create_subprocess_exec` 调用必须使用正确的异步事件循环策略。
 
@@ -65,3 +47,49 @@
 - **那么** 系统通过 WebSocket (`/ws/playback`) 发送回放请求
 - **那么** 后端必须使用 `ProactorEventLoop` 事件循环策略执行 pytest 子进程
 - **那么** 子进程正常启动并返回回放结果，禁止抛出 `NotImplementedError`
+
+### 需求:回放脚本自动关闭对话框遮罩
+
+生成的回放脚本必须在每个交互动作（click, fill, hover, check, select）之前检测并关闭可见的对话框遮罩。
+
+#### 场景:comp_dialog_warp 遮罩拦截点击
+
+- **当** 目标页面存在可见的 div.comp_dialog_warp 遮罩且其中包含可关闭按钮
+- **那么** 脚本在点击目标元素前自动点击遮罩内的关闭按钮（.el-dialog__close, .el-icon-close, [aria-label='Close'] 等）
+- **那么** 等待 300ms 确保关闭动画完成
+- **那么** 然后执行目标点击动作
+
+#### 场景:Element Plus 对话框拦截操作
+
+- **当** 目标页面存在可见的 .el-dialog__wrapper 遮罩
+- **那么** 脚本自动关闭该对话框后再执行原定交互动作
+
+#### 场景:不存在遮罩时正常执行
+
+- **当** 目标页面不存在任何可见的遮罩元素
+- **那么** 脚本直接执行原定交互动作，无额外开销
+
+### 需求:遮罩关闭失败时静默继续
+
+#### 场景:自定义弹窗没有标准关闭按钮
+
+- **当** 页面存在可见遮罩但没有匹配的关闭按钮选择器
+- **那么** 脚本静默跳过关闭逻辑
+- **那么** 继续执行原定交互动作
+
+### 需求:遮罩选择器列表可配置
+
+#### 场景:用户需要支持自定义遮罩类名
+
+- **当** 目标应用使用 .my-app-dialog 作为遮罩类名
+- **那么** 用户可在 OVERLAY_SELECTORS 常量中添加该选择器
+- **那么** 后续生成的脚本会检测该遮罩
+
+### 需求:遮罩拦截错误可识别
+
+回放失败时系统必须能识别 overlay 拦截错误并输出友好提示。
+
+#### 场景:拦截错误识别
+
+- **当** Playwright 错误输出包含 "intercepts pointer events" 关键字
+- **那么** `_parse_playback_error` 返回 `{type: "overlay_intercepted", detail: "元素被弹窗遮罩遮挡，请检查弹窗是否关闭"}`

@@ -81,13 +81,19 @@ export function locatorToSelector(loc: string): string {
 }
 
 function _q(v: string): string {
+  if (v.includes('"') && !v.includes("'")) return "'" + v + "'"
+  if (v.includes("'") && !v.includes('"')) return '"' + v + '"'
   return JSON.stringify(v)
 }
 
 function _unquote(s: string): string {
   const t = s.trim()
   if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
-    return JSON.parse(t)
+    try {
+      return JSON.parse(t)
+    } catch {
+      return t.slice(1, -1)
+    }
   }
   return t
 }

@@ -20,3 +20,9 @@ __pycache__/
 *$py.class
 *.so
 .pytest_cache/
+
+# Build / tool artifacts
+*.tsbuildinfo
+backend/.breadcrumb.db
+backend/uvicorn_err.log
+backend/uvicorn_out.log

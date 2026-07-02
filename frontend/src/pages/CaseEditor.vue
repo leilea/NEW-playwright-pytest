@@ -52,18 +52,51 @@
             :closable="false"
             style="margin-bottom:8px"
           />
+
+            <div v-if="playbackResult.error_info" style="margin-bottom:8px">
+            <div class="error-card" :class="`error-card--${playbackResult.error_info.type}`">
+              <div class="error-card__header">
+                <span class="error-card__icon">{{ errorIcon(playbackResult.error_info.type) }}</span>
+                <span class="error-card__title">{{ errorTitle(playbackResult.error_info.type) }}</span>
+                <el-tag v-if="playbackResult.error_info.step_index !== undefined" size="small" type="warning" style="margin-left:auto">
+                  第 {{ playbackResult.error_info.step_index + 1 }} 步
+                </el-tag>
+              </div>
+              <div class="error-card__body">
+                <p class="error-card__detail">{{ playbackResult.error_info.detail }}</p>
+                <div class="error-card__locator">
+                  <span class="error-card__label">定位器：</span>
+                  <code>{{ playbackResult.error_info.locator || '（未获取到定位器信息）' }}</code>
+                </div>
+                <div v-if="playbackResult.error_info.elements?.length" class="error-card__elements">
+                  <span class="error-card__label">匹配到 {{ playbackResult.error_info.elements.length }} 个元素：</span>
+                  <ul>
+                    <li v-for="(el, i) in playbackResult.error_info.elements" :key="i">
+                      <code>&lt;{{ el }}&gt;</code>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div style="display:flex;gap:8px;margin-bottom:8px">
             <el-tag size="small">exit code: {{ playbackResult.rc }}</el-tag>
             <el-tag v-if="playbackResult.screenshot" size="small" type="info">screenshot: {{ playbackResult.screenshot }}</el-tag>
           </div>
-          <div v-if="playbackResult.stdout" style="margin-bottom:8px">
-            <div style="font-weight:600;font-size:13px;margin-bottom:2px">STDOUT</div>
-            <pre class="script-preview"><code>{{ playbackResult.stdout }}</code></pre>
-          </div>
-          <div v-if="playbackResult.stderr" style="margin-bottom:8px">
-            <div style="font-weight:600;font-size:13px;margin-bottom:2px;color:var(--el-color-danger)">STDERR</div>
-            <pre class="script-preview" style="color:var(--el-color-danger);border-color:var(--el-color-danger-light)"><code>{{ playbackResult.stderr }}</code></pre>
-          </div>
+
+          <el-collapse v-model="logCollapseActive">
+            <el-collapse-item title="完整日志" name="logs">
+              <div v-if="playbackResult.stdout" style="margin-bottom:8px">
+                <div style="font-weight:600;font-size:13px;margin-bottom:2px">STDOUT</div>
+                <pre class="script-preview"><code>{{ playbackResult.stdout }}</code></pre>
+              </div>
+              <div v-if="playbackResult.stderr" style="margin-bottom:8px">
+                <div style="font-weight:600;font-size:13px;margin-bottom:2px;color:var(--el-color-danger)">STDERR</div>
+                <pre class="script-preview" style="color:var(--el-color-danger);border-color:var(--el-color-danger-light)"><code>{{ playbackResult.stderr }}</code></pre>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
         </template>
         <el-empty v-else description="暂无回放结果，点击「回放」按钮执行" />
       </el-tab-pane>
@@ -80,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { list as listSuites } from '@/api/suites'
@@ -88,7 +121,7 @@ import * as casesApi from '@/api/cases'
 import StepEditor from '@/components/StepEditor.vue'
 import ParameterConfig from '@/components/ParameterConfig.vue'
 import type { Step } from '@/types/step'
-import type { Parameter } from '@/types'
+import type { Parameter, PlaybackErrorInfo } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -116,8 +149,9 @@ const copied = ref(false)
 const saving = ref(false)
 const playing = ref(false)
 const playbackResult = ref<null | {
-  status: string; stdout: string; stderr: string; rc: number; screenshot?: string;
+  status: string; stdout: string; stderr: string; rc: number; screenshot?: string; error_info?: PlaybackErrorInfo;
 }>(null)
+const logCollapseActive = ref<string[]>([])
 
 onMounted(async () => {
   suites.value = await listSuites()
@@ -139,12 +173,6 @@ onMounted(async () => {
   }
 })
 
-watch(() => form.value.steps, () => {
-  if (!isNew.value) {
-    const caseId = Number(id.value)
-    if (caseId) loadScript(caseId)
-  }
-}, { deep: true })
 
 async function loadScript(caseId: number) {
   scriptLoading.value = true
@@ -192,7 +220,8 @@ async function save() {
       ElMessage.success('用例已创建')
       router.push(`/suites/${form.value.suite_id}`)
     } else {
-      await casesApi.update(Number(id.value), payload)
+      const updated = await casesApi.update(Number(id.value), payload)
+      form.value.steps = (updated.steps || []) as Step[]
       ElMessage.success('已保存')
       loadScript(Number(id.value))
     }
@@ -203,6 +232,7 @@ async function save() {
 }
 
 function playback() {
+  try { stepEditorRef.value?.flushEditCache() } catch { /* edit cache flush failed, using row.selector directly */ }
   playing.value = true
   playbackResult.value = null
   activeTab.value = 'result'
@@ -234,6 +264,7 @@ function playback() {
         stderr: msg.stderr || '',
         rc: msg.rc,
         screenshot: msg.screenshot,
+        error_info: msg.error_info,
       }
       playing.value = false
     } else if (msg.type === 'error') {
@@ -270,6 +301,20 @@ async function copyScript() {
   }
 }
 
+function errorIcon(type: string): string {
+  return { timeout: '⏱️', strict_violation: '⚠️', load_state_timeout: '🔄', assertion: '❌', }[type] || '❌'
+}
+
+function errorTitle(type: string): string {
+  return {
+    timeout: '定位元素超时',
+    strict_violation: '定位器匹配到多个元素',
+    load_state_timeout: '页面加载状态超时',
+    assertion: '元素断言失败',
+    unknown: '未知回放错误',
+  }[type] || '回放错误'
+}
+
 function back() {
   const sid = form.value.suite_id || suiteIdFromQuery.value
   if (sid) {
@@ -299,5 +344,78 @@ function back() {
 .script-preview code {
   background: none;
   padding: 0;
+}
+
+.error-card {
+  border: 1px solid var(--el-border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.error-card--timeout { border-color: var(--el-color-warning); }
+.error-card--strict_violation { border-color: var(--el-color-danger); }
+.error-card--load_state_timeout { border-color: var(--el-color-warning); }
+.error-card--assertion { border-color: var(--el-color-danger); }
+
+.error-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.error-card--timeout .error-card__header { background: var(--el-color-warning-light-9); }
+.error-card--strict_violation .error-card__header { background: var(--el-color-danger-light-9); }
+.error-card--load_state_timeout .error-card__header { background: var(--el-color-warning-light-9); }
+.error-card--assertion .error-card__header { background: var(--el-color-danger-light-9); }
+
+.error-card__icon { font-size: 16px; }
+.error-card__title { color: var(--el-text-color-primary); }
+
+.error-card__body {
+  padding: 8px 12px 12px;
+}
+
+.error-card__detail {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+}
+
+.error-card__label {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.error-card__locator {
+  margin-bottom: 6px;
+}
+
+.error-card__locator code {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 4px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.error-card__elements ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.error-card__elements li {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.error-card__elements li code {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
 }
 </style>

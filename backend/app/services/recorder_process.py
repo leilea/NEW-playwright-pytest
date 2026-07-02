@@ -35,102 +35,150 @@ RECORDER_INJECT_JS = """
     window.__dsep_queue = window.__dsep_queue || [];
     window.__dsep_seq = window.__dsep_seq || 0;
 
+    function _countAttr(attr, value) {
+        var c = 0;
+        try {
+            var q = value.indexOf('"') >= 0 ? "'" : '"';
+            c = (document.querySelectorAll('[' + attr + '=' + q + value + q + ']') || []).length;
+        } catch(e) { c = 999; }
+        return c;
+    }
+
     function genSelector(el) {
         if (!el || el === document) return 'body';
 
         var lbl = _findLabel(el);
         var aria = el.getAttribute('aria-label');
         var role = _inferRole(el);
-        var aname = aria || el.getAttribute('title') || (el.textContent || '').trim().slice(0, 80) || '';
+        var aname = aria || (el.textContent || '').trim().slice(0, 80) || '';
         var txt = (el.textContent || '').trim().slice(0, 60);
         var tag = el.tagName.toLowerCase();
         var alt = el.getAttribute('alt');
         var title = el.getAttribute('title');
         var ph = el.getAttribute('placeholder');
 
-        // 标签限定: 非泛型标签追加 |tag 后缀，消歧任何定位器
         function _scope(sel) {
             if (tag === 'div' || tag === 'span' || tag === 'body' || tag === 'html') return sel;
             return sel + '|' + tag;
         }
 
-        // === 1. data-testid → get_by_test_id()，最稳定 ===
+        // === Phase 1: Collect all semantic candidates with preference ===
+        var candidates = [];
 
+        // (pref=10) data-testid — test-only attribute, most stable
         var tid = el.getAttribute('data-testid');
-        if (tid) return '__testid:' + tid;
-
-        // === 2. ARIA role → get_by_role()，官方首推 ===
-
-        // 2a. role + label name — skip if non-unique
-        if (role && lbl && _countRoleMatches(role, lbl) <= 1) return _scope('__role:' + role + ':' + lbl);
-
-        // 2b. role + accessible name — skip if non-unique
-        if (role && aname && _countRoleMatches(role, aname) <= 1) return _scope('__role:' + role + ':' + aname);
-
-        // role+name non-unique? try parent context chain
-        if (role && aname && _countRoleMatches(role, aname) > 1) {
-            var roleParent = _findParentContext(el);
-            if (roleParent) return roleParent + ' > ' + '__role:' + role + ':' + aname;
+        if (tid) {
+            candidates.push({sel: '__testid:' + tid, pref: 10, unique: _countAttr('data-testid', tid) <= 1});
         }
 
-        // 2c. role only — skip if any name exists, names preferred
-        if (role && !lbl && !aria && !ph && !aname) return _scope('__role:' + role);
+        // (pref=9) title — HTML metadata, stable across UI changes
+        if (title) {
+            candidates.push({sel: '__title:' + title, pref: 9, unique: _countAttr('title', title) <= 1});
+        }
 
-        // === 3. label → get_by_label() ===
+        // (pref=9) alt — image alt text
+        if (alt && tag === 'img') {
+            candidates.push({sel: '__alt:' + alt, pref: 9, unique: _countAttr('alt', alt) <= 1});
+        }
 
-        // 3a. label element
-        if (lbl) return _scope('__label:' + lbl);
+        // (pref=8) label — form element label
+        if (lbl) {
+            candidates.push({sel: _scope('__label:' + lbl), pref: 8, unique: true});
+        }
 
-        // 3b. aria-label fallback
-        if (aria) return _scope('__label:' + aria);
+        // (pref=8) placeholder — input hint
+        if (ph) {
+            candidates.push({sel: _scope('__placeholder:' + ph), pref: 8, unique: _countAttr('placeholder', ph) <= 1});
+        }
 
-        // === 4. placeholder → get_by_placeholder() ===
+        // (pref=7) role + aria-label
+        if (role && aria) {
+            candidates.push({sel: _scope('__role:' + role + ':' + aria), pref: 7, unique: _countRoleMatches(role, aria) <= 1});
+        }
 
-        if (ph) return _scope('__placeholder:' + ph);
+        // (pref=6) role + label name
+        if (role && lbl) {
+            candidates.push({sel: _scope('__role:' + role + ':' + lbl), pref: 6, unique: _countRoleMatches(role, lbl) <= 1});
+        }
 
-        // === 5. text → get_by_text()，唯一性检查 ===
+        // (pref=5) role + text name
+        if (role && aname) {
+            candidates.push({sel: _scope('__role:' + role + ':' + aname), pref: 5, unique: _countRoleMatches(role, aname) <= 1});
+        }
 
+        // (pref=4) role only — no accessible name
+        if (role && !lbl && !aria && !ph && !aname) {
+            candidates.push({sel: _scope('__role:' + role), pref: 4, unique: _countRoleMatches(role, '') <= 1});
+        }
+
+        // (pref=5) text — visible text, unique check
         if (txt) {
             var sameText = 0;
-            var candidates = document.querySelectorAll(
-                'a,button,input,textarea,select,em,strong,span,li,label,h1,h2,h3,h4,[onclick],[role]'
-            );
-            for (var i = 0; i < candidates.length && sameText < 2; i++) {
-                if ((candidates[i].textContent || '').trim().slice(0, 60) === txt) sameText++;
+            var cs = document.querySelectorAll('a,button,input,textarea,select,em,strong,span,li,label,h1,h2,h3,h4,[onclick],[role]');
+            for (var i = 0; i < cs.length && sameText < 2; i++) {
+                if ((cs[i].textContent || '').trim().slice(0, 60) === txt) sameText++;
             }
-            if (sameText <= 1) return _scope('__text:' + txt);
-            // non-unique — try parent context chain
-            var textParent = _findParentContext(el);
-            if (textParent) return textParent + ' > ' + '__text:' + txt;
-            if (tag !== 'div' && tag !== 'span' && tag !== 'body' && tag !== 'html') {
-                return '__text:' + txt + '|' + tag;
-            }
+            candidates.push({sel: _scope('__text:' + txt), pref: 5, unique: sameText <= 1});
         }
 
-        // === 6. image alt → get_by_alt_text() ===
+        // === Phase 2: Sort by preference desc, pick first unique ===
+        candidates.sort(function(a, b) { return b.pref - a.pref; });
 
-        if (alt && tag === 'img') return '__alt:' + alt;
+        for (var k = 0; k < candidates.length; k++) {
+            if (candidates[k].unique) return candidates[k].sel;
+        }
 
-        // === 7. title → get_by_title() ===
+        // === Phase 3: No unique semantic — try chain with semantic parent ===
+        if (candidates.length > 0) {
+            var best = candidates[0];
+            var semParent = _findSemanticParent(el);
+            if (semParent) {
+                var cleanChild = best.sel;
+                var pipeIdx = cleanChild.indexOf('|');
+                if (pipeIdx > -1) cleanChild = cleanChild.substring(0, pipeIdx);
+                return semParent + ' >> ' + cleanChild;
+            }
+            // fallback: old parent context (data-testid / id / class)
+            var cssParent = _findParentContext(el);
+            if (cssParent) return cssParent + ' > ' + best.sel;
+            // ultimate fallback: element's own id as parent context (e.g. #el-id-4667-98 > __placeholder:请输入|input)
+            if (el.id && !/^\\d/.test(el.id)) return '#' + CSS.escape(el.id) + ' > ' + best.sel;
+        }
 
-        if (title && !aria && !lbl) return '__title:' + title;
+        // === Phase 4: Tier 2 — CSS / attribute fallback ===
 
-        // === 备用: CSS / 属性定位 ===
-
-        // 8. CSS id
+        // id — stable if not numeric
         if (el.id && !/^\\d/.test(el.id)) return '#' + CSS.escape(el.id);
 
-        // 9. name attribute
+        // name attribute
         var nm = el.getAttribute('name');
-        if (nm) return el.tagName.toLowerCase() + '[name="' + nm + '"]';
+        if (nm) return tag + '[name="' + nm + '"]';
 
-        // 10. CSS classes
-        if (el.className && typeof el.className === 'string') {
-            var cls = el.className.split(/\\s+/).filter(Boolean).join('.');
-            if (cls && cls.length < 60) return el.tagName.toLowerCase() + '.' + cls;
+        // title as CSS attribute (non-unique title still better than nth-child)
+        if (title) return tag + '[title="' + title + '"]';
+
+        // discover any other unique attribute (e.g. aria-*, href, type, data-*)
+        var atts = el.attributes;
+        for (var j = 0; j < atts.length; j++) {
+            var a = atts[j];
+            var an = a.name;
+            if (an === 'class' || an === 'id' || an === 'style' || an === 'data-testid' ||
+                an === 'title' || an === 'name' || an === 'alt' || an === 'placeholder') continue;
+            if (an.indexOf('data-') === 0) continue;
+            if (a.value && _countAttr(an, a.value) <= 1) return tag + '[' + an + '="' + a.value + '"]';
         }
 
-        return el.tagName.toLowerCase();
+        // CSS class — single unique class or combined
+        if (el.className && typeof el.className === 'string') {
+            var cls = el.className.split(/\\s+/).filter(Boolean).join('.');
+            if (cls && cls.length < 60) return tag + '.' + cls;
+        }
+
+        // === Phase 5: Tier 3 — XPath / bare tag ===
+        var xp = _getXPath(el);
+        if (xp) return '__xpath:' + xp;
+
+        return tag;
     }
 
     function _findLabel(el) {
@@ -144,7 +192,7 @@ RECORDER_INJECT_JS = """
             if (t) return t;
         }
         let p = el.parentElement;
-        while (p) {
+        for (var i = 0; i < 5 && p; i++) {
             if (p.tagName === 'LABEL') {
                 const t = p.textContent.replace(el.textContent || '', '').trim();
                 if (t) return t;
@@ -152,21 +200,38 @@ RECORDER_INJECT_JS = """
             }
             p = p.parentElement;
         }
+        var formItem = el.closest('.el-form-item');
+        if (formItem) {
+            var elLabel = formItem.querySelector('.el-form-item__label');
+            if (elLabel && elLabel.textContent.trim()) return elLabel.textContent.trim();
+        }
         return null;
     }
 
     function _inferRole(el) {
-        const r = el.getAttribute('role');
+        var r = el.getAttribute('role');
         if (r) return r;
-        const tag = el.tagName.toLowerCase();
-        if (tag === 'button' || (tag === 'input' && ['submit','button','reset'].includes(el.type))) return 'button';
+        var tag = el.tagName.toLowerCase();
+        if (tag === 'button' || (tag === 'input' && ['submit','button','reset'].indexOf(el.type) >= 0)) return 'button';
         if (tag === 'a' && el.href) return 'link';
         if (tag === 'h1' || tag === 'h2' || tag === 'h3') return 'heading';
+        if (tag === 'h4' || tag === 'h5' || tag === 'h6') return 'heading';
         if (tag === 'input' && el.type === 'text') return 'textbox';
         if (tag === 'textarea') return 'textbox';
         if (tag === 'select') return 'combobox';
-        if (tag === 'checkbox' || (tag === 'input' && el.type === 'checkbox')) return 'checkbox';
-        if (tag === 'radio' || (tag === 'input' && el.type === 'radio')) return 'radio';
+        if (tag === 'input' && el.type === 'checkbox') return 'checkbox';
+        if (tag === 'input' && el.type === 'radio') return 'radio';
+        // structural roles — for chain locator disambiguation
+        if (tag === 'nav') return 'navigation';
+        if (tag === 'main') return 'main';
+        if (tag === 'header') return 'banner';
+        if (tag === 'footer') return 'contentinfo';
+        if (tag === 'aside') return 'complementary';
+        if (tag === 'form') return 'form';
+        if (tag === 'table') return 'table';
+        if (tag === 'ul' || tag === 'ol') return 'list';
+        if (tag === 'li') return 'listitem';
+        if (tag === 'article') return 'article';
         return null;
     }
 
@@ -197,6 +262,49 @@ RECORDER_INJECT_JS = """
             depth++;
         }
         return null;
+    }
+
+    function _findSemanticParent(el) {
+        var p = el.parentElement, depth = 0;
+        while (p && p !== document.body && depth < 5) {
+            var r = _inferRole(p);
+            if (r) {
+                var tid2 = p.getAttribute('data-testid');
+                if (tid2 && _countAttr('data-testid', tid2) <= 1) return '__testid:' + tid2;
+                var pname = p.getAttribute('aria-label') || (p.textContent || '').trim().slice(0, 80) || '';
+                var plbl = _findLabel(p);
+                if (plbl && _countRoleMatches(r, plbl) <= 1) return '__role:' + r + ':' + plbl;
+                if (pname && _countRoleMatches(r, pname) <= 1) return '__role:' + r + ':' + pname;
+                return '__role:' + r;
+            }
+            p = p.parentElement;
+            depth++;
+        }
+        return null;
+    }
+
+    function _getXPath(el) {
+        if (el.id) return '//*[@id="' + el.id + '"]';
+        var parts = [];
+        var cur = el;
+        while (cur && cur !== document.documentElement) {
+            var t = cur.tagName.toLowerCase();
+            var parent = cur.parentElement;
+            if (parent) {
+                var sibs = parent.querySelectorAll(':scope > ' + t);
+                if (sibs.length === 1) {
+                    parts.unshift(t);
+                } else {
+                    for (var idx = 0; idx < sibs.length; idx++) {
+                        if (sibs[idx] === cur) { parts.unshift(t + '[' + (idx + 1) + ']'); break; }
+                    }
+                }
+            } else {
+                parts.unshift(t);
+            }
+            cur = parent;
+        }
+        return parts.length ? '//' + parts.join('/') : null;
     }
 
     function rec(action, params) {

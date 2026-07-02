@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from typing import AsyncIterator
 
 async def start_codegen(target_url: str) -> AsyncIterator[dict]:
@@ -25,14 +26,37 @@ async def start_codegen(target_url: str) -> AsyncIterator[dict]:
             await proc.wait()
 
 
+_GET_BY_NORMALIZE = [
+    (re.compile(r'page\.get_by_role\((["\'])(.+?)\1\s*,\s*name=(["\'])(.+?)\3\s*,\s*exact\s*=\s*True\s*\)'), r'page.locator("__role:\2:\4")'),
+    (re.compile(r'page\.get_by_role\((["\'])(.+?)\1\s*,\s*name=(["\'])(.+?)\3\s*\)'), r'page.locator("__role:\2:\4")'),
+    (re.compile(r'page\.get_by_role\((["\'])(.+?)\1\s*\)'), r'page.locator("__role:\2")'),
+    (re.compile(r'page\.get_by_placeholder\((["\'])(.+?)\1\s*\)'), r'page.locator("__placeholder:\2")'),
+    (re.compile(r'page\.get_by_label\((["\'])(.+?)\1\s*\)'), r'page.locator("__label:\2")'),
+    (re.compile(r'page\.get_by_text\((["\'])(.+?)\1\s*,\s*exact\s*=\s*True\s*\)'), r'page.locator("__text:\2")'),
+    (re.compile(r'page\.get_by_text\((["\'])(.+?)\1\s*\)'), r'page.locator("__text:\2")'),
+    (re.compile(r'page\.get_by_test_id\((["\'])(.+?)\1\s*\)'), r'page.locator("__testid:\2")'),
+    (re.compile(r'page\.get_by_alt_text\((["\'])(.+?)\1\s*\)'), r'page.locator("__alt:\2")'),
+    (re.compile(r'page\.get_by_title\((["\'])(.+?)\1\s*\)'), r'page.locator("__title:\2")'),
+]
+
+
+def _normalize_codegen_line(line: str) -> str:
+    for pattern, replacement in _GET_BY_NORMALIZE:
+        line = pattern.sub(replacement, line)
+    return line
+
+
 STEP_PATTERNS = [
     ("goto", r'page\.goto\("(.*)"\)'),
-    ("click", r'page\.(?:click|locator)\("([^"]+)"\)\.click\b'),
-    ("fill", r'page\.(?:fill|locator)\("([^"]+)"\)\.fill\("([^"]*)"'),
+    ("click", r'page\.click\("([^"]+)"\)'),
+    ("click", r'page\.locator\("([^"]+)"\)(?:\.first|\.nth\(\d+\))?\.click\b'),
+    ("fill", r'page\.fill\("([^"]+)",\s*"([^"]*)"'),
+    ("fill", r'page\.locator\("([^"]+)"\)(?:\.first|\.nth\(\d+\))?\.fill\("([^"]*)"'),
     ("expect", r'expect\(page\.locator\("([^"]+)"\)\)\.to_contain_text\("([^"]*)"'),
-    ("check", r'page\.locator\("([^"]+)"\)\.(check|uncheck)'),
-    ("select", r'page\.(?:select_option|locator)\("([^"]+)"\)\.select_option\("([^"]*)"'),
-    ("hover", r'page\.locator\("([^"]+)"\)\.hover'),
+    ("check", r'page\.locator\("([^"]+)"\)(?:\.first|\.nth\(\d+\))?\.(check|uncheck)'),
+    ("select", r'page\.select_option\("([^"]+)",\s*"([^"]*)"'),
+    ("select", r'page\.locator\("([^"]+)"\)(?:\.first|\.nth\(\d+\))?\.select_option\("([^"]*)"'),
+    ("hover", r'page\.locator\("([^"]+)"\)(?:\.first|\.nth\(\d+\))?\.hover'),
     ("wait", r'page\.wait_for_timeout\((\d+)\)'),
     ("screenshot", r'page\.screenshot'),
     ("scroll", r'page\.evaluate\("window\.scrollTo\((\d+),\s*(\d+)\)"'),
@@ -41,7 +65,7 @@ STEP_PATTERNS = [
 
 
 def parse_codegen_line(line: str) -> dict | None:
-    import re
+    line = _normalize_codegen_line(line)
     for action, pattern in STEP_PATTERNS:
         m = re.search(pattern, line)
         if not m:

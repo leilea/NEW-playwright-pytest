@@ -97,9 +97,14 @@ const steps = computed({
 const editCache = reactive(new Map<Step, string>())
 
 watch(() => props.modelValue, (steps) => {
-  editCache.clear()
+  const current = new Set(steps)
+  for (const [s] of editCache) {
+    if (!current.has(s)) editCache.delete(s)
+  }
   for (const s of steps) {
-    editCache.set(s, selectorToLocator(String(s.selector || '')).replace(/page\./g, ''))
+    if (!editCache.has(s)) {
+      editCache.set(s, selectorToLocator(String(s.selector || '')).replace(/page\./g, ''))
+    }
   }
 }, { immediate: true, deep: true })
 
